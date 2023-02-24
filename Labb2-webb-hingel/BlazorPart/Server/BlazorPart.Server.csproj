@@ -16,12 +16,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\CustomerDataAccess\CustomerDataAccess.csproj" />
+    <ProjectReference Include="..\..\StoreDataAccess\StoreDataAccess.csproj" />
     <ProjectReference Include="..\Client\BlazorPart.Client.csproj" />
     <ProjectReference Include="..\Shared\BlazorPart.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
   </ItemGroup>
 
 
