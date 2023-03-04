@@ -1,4 +1,6 @@
-﻿using Labb2HingelWebb.Server.Models;
+﻿using System.Security.Claims;
+using Labb2HingelWebb.Server.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Labb2HingelWebb.Server.Services;
 
@@ -8,18 +10,16 @@ public class CustomerService
 {
 	//private readonly ICustomerRepository _customerRepo;
 	private ApplicationUser _activeCustomer; //TODO: Eller ska det vara en Dto? //Customer heter något annat.
-
-	//public CustomerService(ICustomerRepository repository)
-	//{
-	//	var email = "hej@hej.com";
-
-	//	_customerRepo = repository;
-	//	_activeCustomer = _customerRepo.GetByEmail(email).Result; //TOdo: Tillfälligt test. Ta bort sen.
-	//	//detta kan ske genom sättet jag gjorde i Testsidan i google projektet tänkte jag på något sätt.
-	//}
+	private UserManager<ApplicationUser> _userManager;
 
 
-	//Flytta detta till någonannanstans eventuellt?
+	public CustomerService(UserManager<ApplicationUser> userManager)
+	{
+		_userManager = userManager;
+	}
+
+
+	//Flytta detta till någonannanstans eventuellt? Tror inte detta upplägget är så nödvändigt.
 	public ApplicationUser ActiveCustomer
 	{
 		get => _activeCustomer;
@@ -27,6 +27,32 @@ public class CustomerService
 	}
 
 
+	//För att hitta en användare på servern
+	public async Task<IdentityResult> FindUser(string email)
+	{
+
+		//var test = _userManager.Users.Where(u => u.Email.Contains(email)).FirstOrDefault();
+
+		var test = await _userManager.FindByEmailAsync(email);
+
+		test.UserName = "Stenen";
+
+		var result = await _userManager.UpdateAsync(test);
+
+		return result;
+
+
+
+		//För att ta bort en användare
+		//await _userManager.DeleteAsync(test);
+
+
+		//För att lägga till claims
+		await _userManager.AddClaimAsync(test, new Claim("hej", "hj"));
+
+		//För att lägga till användaren till rollistor.
+		await _userManager.AddToRoleAsync(test, "admin");
+	}
 
 	//TODO: Det ska generellt returneras CustomerDTOs härifrån till användaren.
 

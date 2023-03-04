@@ -1,4 +1,5 @@
-﻿using Labb2HingelWebb.Shared.DTOs;
+﻿using Labb2HingelWebb.Server.Models;
+using Labb2HingelWebb.Shared.DTOs;
 using StoreDataAccess.Models;
 using StoreDataAccess.Repositories;
 
@@ -95,29 +96,10 @@ public class StoreService
 
 	//metoder:
 
-	//Temp metod
 
-	public async Task FillCart()
-	{
-		_shoppingCart.AddRange(await GetAllProducts());
-
-		await PlaceOrder();
-	}
+	
 
 
-
-
-	//Eller ska detta ligga i FrontEnd?
-	public void AddProductToCart()
-	{
-		_shoppingCart.Add(_activeProductDto);
-	}
-
-	//Eller ska detta ligga i FrontEnd?
-	public void RemoveProductFromCart()
-	{
-		_shoppingCart.Remove(_activeProductDto);
-	}
 
 
 	public async Task PlaceOrder()
@@ -139,11 +121,11 @@ public class StoreService
 		}
 	}
 
-	private CustomerDto ConvertCustomerToDto(Customer activeCustomer)
+	private CustomerDto ConvertCustomerToDto(ApplicationUser activeCustomer)
 	{
 		return new CustomerDto()
 		{
-			FirstName = activeCustomer.FirstName,
+			UserName = activeCustomer.UserName,
 			Email = activeCustomer.Email
 			//Todo: Fyll på med mer info här som behövs.
 		};
@@ -159,4 +141,25 @@ public class StoreService
 	//		ProductType = product.ProductType
 	//	};
 	//}
+
+	//Temp metod
+
+	public async Task FillCart()
+	{
+		_shoppingCart.AddRange(await GetAllProducts());
+
+		await PlaceOrder();
+	}
+
+	//Eller ska detta ligga i FrontEnd?
+	public void AddProductToCart()
+	{
+		_shoppingCart.Add(_activeProductDto);
+	}
+
+	//Eller ska detta ligga i FrontEnd?
+	public void RemoveProductFromCart()
+	{
+		_shoppingCart.Remove(_activeProductDto);
+	}
 }

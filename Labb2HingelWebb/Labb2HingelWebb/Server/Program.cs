@@ -1,7 +1,10 @@
+using Labb2HingelWebb.Client;
 using Labb2HingelWebb.Server.Data;
 using Labb2HingelWebb.Server.Models;
 using Labb2HingelWebb.Server.Services;
+using Labb2HingelWebb.Shared.DTOs;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using StoreDataAccess.Models;
@@ -34,6 +37,13 @@ builder.Services.AddScoped<StoreService>();
 builder.Services.AddScoped<IStoreRepository<Order>, OrderRepository>();
 
 
+builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<UserManager<ApplicationUser>>();
+
+//Får inte detta att funka, men får fixa det sen.
+//builder.Services.AddScoped<RoleManager<IdentityRole>>();
+//builder.Services.AddScoped<RoleService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -56,6 +66,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
+
+
+
 app.UseIdentityServer();
 app.UseAuthorization();
 
@@ -63,5 +77,41 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+
+//Customer APIs
+app.MapGet("/getUser", async (CustomerService customerService, string email) =>
+{
+	await customerService.FindUser(email);
+});
+
+//StoreItem APIs
+app.MapPost("/addStoreProduct",
+	async (StoreService storeService, StoreProductDto newDtoProduct) =>
+	{
+		await storeService.AddNewProduct(newDtoProduct);
+	});
+
+app.MapGet("/getAllProducts", async (StoreService storeService) => await storeService.GetAllProducts());
+app.MapGet("/getProductByName", async (StoreService storeService, string searchName) => await storeService.GetByName(searchName));
+app.MapGet("/getProductByNumber", async (StoreService storeService, string id) => await storeService.GetById(id));
+app.MapPut("/getDiscontinueProduct", async (StoreService storeService, string searchName) => await storeService.DiscontinueItem(searchName));
+
+
+
+//Orders APIs, de mesta är för admin, måste kolla att vem som helst inte kan köra dessa:
+
+
+//Borde skicka en hel array med objekt och användarnamnet eller email genom APIet.
+app.MapPost("/placeOrder", async (StoreService storeService) => await storeService.PlaceOrder());
+//Få tillbaks shoppingcarten
+
+
+
+
+//Temp metoder:
+app.MapGet("/fillCart", async (StoreService storeService) => await storeService.FillCart());
+
+
+
 
 app.Run();
