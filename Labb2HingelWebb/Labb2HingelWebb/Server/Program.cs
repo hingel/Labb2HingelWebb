@@ -1,8 +1,11 @@
 using Labb2HingelWebb.Server.Data;
 using Labb2HingelWebb.Server.Models;
+using Labb2HingelWebb.Server.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using StoreDataAccess.Models;
+using StoreDataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,13 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+//Egna tillagda delar:
+
+builder.Services.AddScoped<IStoreRepository<StoreProduct>, ProductRepository>();
+builder.Services.AddScoped<StoreService>();
+builder.Services.AddScoped<IStoreRepository<Order>, OrderRepository>();
+
 
 var app = builder.Build();
 

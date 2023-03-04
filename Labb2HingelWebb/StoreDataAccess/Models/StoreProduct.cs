@@ -1,4 +1,4 @@
-﻿using BlazorPart.Shared;
+﻿using Labb2HingelWebb.Shared;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 

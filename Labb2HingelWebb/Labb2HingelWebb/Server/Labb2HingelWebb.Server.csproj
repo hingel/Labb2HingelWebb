@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\StoreDataAccess\StoreDataAccess.csproj" />
     <ProjectReference Include="..\Client\Labb2HingelWebb.Client.csproj" />
     <ProjectReference Include="..\Shared\Labb2HingelWebb.Shared.csproj" />
   </ItemGroup>
@@ -23,6 +24,10 @@
     <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="7.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
