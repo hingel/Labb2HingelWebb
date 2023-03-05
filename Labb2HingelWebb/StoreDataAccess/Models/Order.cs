@@ -6,13 +6,13 @@ namespace StoreDataAccess.Models;
 public class Order
 {
 	[BsonId] 
-	public int Id { get; set; } //ToDO: Gör egen metod för detta. Finns inget inbyggt.
-	
-	[BsonElement]
-	public CustomerDto Customer { get; set; } //Vill inte spara lösenordsdelarna i denna del. Eller bara Email?
+	public string Id { get; set; }
 
 	[BsonElement]
-	public IEnumerable<StoreProductDto> ProductDtos { get; set; } //Eller ska detta vara Dtos för att tex inte spara bilder?
+	public CustomerDto CustomerDto { get; set; } //Vill inte spara lösenordsdelarna i denna del.
+
+	[BsonElement]
+	public IEnumerable<StoreProductDto> ProductDtos { get; set; }
 	
 	[BsonElement]
 	public DateTime OrderDate { get; set; }

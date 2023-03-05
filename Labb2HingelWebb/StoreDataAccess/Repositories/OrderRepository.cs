@@ -22,6 +22,8 @@ public class OrderRepository : IStoreRepository<Order>
 
 	public async Task AddItemAsync(Order item)
 	{
+		item.Id = await GetOrderNumber();
+
 		await _storeProductCollection.InsertOneAsync(item);
 	}
 
@@ -43,5 +45,12 @@ public class OrderRepository : IStoreRepository<Order>
 	public async Task<IEnumerable<Order>> GetItemByNumber(string id)
 	{
 		throw new NotImplementedException();
+	}
+
+	private async Task<string> GetOrderNumber()
+	{
+		var filter = Builders<Order>.Filter.Empty;
+		var result = await _storeProductCollection.CountDocumentsAsync(filter) + 1;
+		return result.ToString();
 	}
 }

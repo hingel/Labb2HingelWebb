@@ -4,7 +4,7 @@ namespace Labb2HingelWebb.Server.Models
 {
 	public class ApplicationUser : IdentityUser
 	{
-
-		//Kan jag lägga till mer info här o köra en update?
+		public string? Adress { get; set; } = string.Empty;
+		//Kan jag lägga till ytterligare info här o köra en ny migration
 	}
 }

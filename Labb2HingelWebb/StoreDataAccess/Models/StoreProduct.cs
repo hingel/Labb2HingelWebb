@@ -18,6 +18,8 @@ public class StoreProduct
 	public bool IsActive { get; set; }
 	[BsonElement]
 	public int Price { get; set; }
+
+	//Denna kan jag ta bort sen:
 	[BsonElement]
 	public string PictureLink { get; set; }
 	//lägg till ytterligare 

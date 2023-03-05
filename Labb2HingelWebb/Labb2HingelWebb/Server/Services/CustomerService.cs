@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Labb2HingelWebb.Server.Models;
+using Labb2HingelWebb.Shared.DTOs;
 using Microsoft.AspNetCore.Identity;
 
 namespace Labb2HingelWebb.Server.Services;
@@ -27,7 +28,7 @@ public class CustomerService
 	}
 
 
-	//För att hitta en användare på servern
+	//För att hitta en användare på servern och i nuläget uppdatera den
 	public async Task<IdentityResult> FindUser(string email)
 	{
 
@@ -36,8 +37,10 @@ public class CustomerService
 		var test = await _userManager.FindByEmailAsync(email);
 
 		test.UserName = "Stenen";
+		test.Adress = "Paradisgatan 18, Gbg";
 
 		var result = await _userManager.UpdateAsync(test);
+
 
 		return result;
 
@@ -54,6 +57,38 @@ public class CustomerService
 		await _userManager.AddToRoleAsync(test, "admin");
 	}
 
+	public async Task<CustomerDto> FindUserDtoByName(string name)
+	{
+		var user = await _userManager.FindByNameAsync(name);
+
+		return new CustomerDto()
+		{
+			UserName = user.UserName,
+			Email = user.Email,
+
+			//Todo: Fyll på med mer info här som behövs.
+		};
+	}
+
+	public async Task<ApplicationUser> FindUserByName(string nickName)
+	{
+		var user = await _userManager.FindByNameAsync(nickName);
+
+		//Todo: Behövs felhantering
+
+		return user;
+	}
+
 	//TODO: Det ska generellt returneras CustomerDTOs härifrån till användaren.
 
+	public async Task<IdentityResult> UpdateUser(CustomerDto updatedCustomerDto)
+	{
+		var userToUpdate = await _userManager.FindByEmailAsync(updatedCustomerDto.Email);
+
+		userToUpdate.Adress = updatedCustomerDto.Address;
+		userToUpdate.PhoneNumber = updatedCustomerDto.Phone;
+		userToUpdate.UserName = updatedCustomerDto.UserName;
+
+		return await _userManager.UpdateAsync(userToUpdate);
+	}
 }

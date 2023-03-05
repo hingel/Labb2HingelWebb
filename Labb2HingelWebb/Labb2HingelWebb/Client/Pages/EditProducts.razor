@@ -1,0 +1,70 @@
+﻿@page "/EditProducts"
+@using Labb2HingelWebb.Shared.DTOs
+
+@inject HttpClient HttpClient
+
+<h3>EditProducts</h3>
+
+<button class="btn btn-primary">NewProduct</button>
+
+<EditForm Model="ActiveProductDto" OnSubmit="UpdateProduct">
+	<div class="form-control">
+		<label>Name</label>
+		<InputText @bind-Value="ActiveProductDto.ProductName"></InputText>
+		<label>Description</label>
+		<InputText @bind-Value="ActiveProductDto.ProductDescription"></InputText>
+		<label>Type</label>
+		<InputText @bind-Value="ActiveProductDto.ProductType"></InputText>
+		<label>IsActive</label>
+		<InputText @bind-Value="ActiveProductDto.IsActive">Göra om detta till en check box</InputText>
+		<label>Price</label>
+		<InputText @bind-Value="ActiveProductDto.Price"></InputText>
+	</div>
+	<button class="btn btn-primary">Send</button>
+	
+</EditForm>
+
+
+<ul class="container">
+	<Virtualize Items="StoreProductDtos" Context="productDto">
+		<li class="list-group">
+			<div @onclick="() => SelectProduct(productDto)">
+				@productDto.ProductName @productDto.Price
+			</div>
+		</li>
+	</Virtualize>
+</ul>
+
+
+@code {
+	public StoreProductDto ActiveProductDto { get; set; } = new StoreProductDto();
+
+	public List<StoreProductDto> StoreProductDtos { get; set; } = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		var result = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "getAllProducts");
+		
+		if (result != null)
+		{
+			StoreProductDtos.AddRange(result);
+		}
+
+	}
+
+
+	//Den selekterade produkten i listan
+	private void SelectProduct(StoreProductDto selectedProductDto)
+	{
+		ActiveProductDto = selectedProductDto;
+
+		//Kanske behöver uppdatera fälten p.n.s.
+	}
+
+	//När produkten ska uppdateras, om den ska uppdatera befintlig eller göra en ny. Men denna check kanske görs på serversidan istället.
+	private void UpdateProduct()
+	{
+		throw new NotImplementedException();
+	}
+
+}

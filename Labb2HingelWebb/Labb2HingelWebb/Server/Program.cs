@@ -84,14 +84,28 @@ app.MapGet("/getUser", async (CustomerService customerService, string email) =>
 	await customerService.FindUser(email);
 });
 
-//StoreItem APIs
+app.MapGet("/findUserByName/{name}", async (CustomerService customerService, string name) =>
+{
+	return await customerService.FindUserByName(name);
+});
+
+app.MapPost("/updateUser", async (CustomerService customerService, CustomerDto updatedCustomerDto) =>
+{
+	return await customerService.UpdateUser(updatedCustomerDto);
+});
+
+//StoreItem APIs Typ allt är admin grejer.
 app.MapPost("/addStoreProduct",
 	async (StoreService storeService, StoreProductDto newDtoProduct) =>
 	{
 		await storeService.AddNewProduct(newDtoProduct);
 	});
 
-app.MapGet("/getAllProducts", async (StoreService storeService) => await storeService.GetAllProducts());
+app.MapGet("/getAllProducts", async (StoreService storeService) =>
+{
+	return await storeService.GetAllProducts();
+});
+
 app.MapGet("/getProductByName", async (StoreService storeService, string searchName) => await storeService.GetByName(searchName));
 app.MapGet("/getProductByNumber", async (StoreService storeService, string id) => await storeService.GetById(id));
 app.MapPut("/getDiscontinueProduct", async (StoreService storeService, string searchName) => await storeService.DiscontinueItem(searchName));
@@ -101,17 +115,12 @@ app.MapPut("/getDiscontinueProduct", async (StoreService storeService, string se
 //Orders APIs, de mesta är för admin, måste kolla att vem som helst inte kan köra dessa:
 
 
-//Borde skicka en hel array med objekt och användarnamnet eller email genom APIet.
-app.MapPost("/placeOrder", async (StoreService storeService) => await storeService.PlaceOrder());
+//Borde skicka en hel array med objekt och användarnamnet eller email i bodyn.
+app.MapPost("/placeOrder", async (StoreService storeService, OrderDto newOrder) =>
+{
+	await storeService.PlaceOrder(newOrder);
+});
 //Få tillbaks shoppingcarten
-
-
-
-
-//Temp metoder:
-app.MapGet("/fillCart", async (StoreService storeService) => await storeService.FillCart());
-
-
 
 
 app.Run();

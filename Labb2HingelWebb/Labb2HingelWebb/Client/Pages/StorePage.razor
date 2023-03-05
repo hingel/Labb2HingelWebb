@@ -1,0 +1,111 @@
+﻿@page "/StorePage"
+@using Labb2HingelWebb.Shared.DTOs
+
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>StorePage</h3>
+
+<h2>Welcome @CustomerName</h2>
+
+<div class="container">
+	<button class="btn btn-primary" @onclick="CheckOut">Check Out</button>
+</div>
+
+<ul class="container">
+	<Virtualize Items="ListStoreProductDtos" Context="productDto">
+		<li class="list-group">
+			<div class="card list-group-item mb-2">
+				<div class="card-header bg-secondary bg-gradient text-light">
+					@productDto.ProductName @productDto.Price
+				</div>
+				<div class="card-body">
+					@productDto.ProductDescription
+					<button class="btn btn-primary" @onclick="() => AddProductToCart(productDto)">+</button>
+					<button class="btn btn-primary" @onclick="() => RemoveProductFromCart(productDto)">-</button>
+				</div>
+			</div>
+		</li>
+	</Virtualize>
+</ul>
+
+<ul class="container">
+	<Virtualize Items="ShoppingCartDto" Context="productDto">
+		<li class="list-group">
+			<div>
+				@productDto.ProductName @productDto.Price
+			</div>
+		</li>
+	</Virtualize>
+</ul>
+
+
+@code {
+	//TODO: När den laddar upp ska den kolla session storage / cookie om det redan finns en shoppingcart.
+
+	public List<StoreProductDto> ShoppingCartDto { get; set; } = new();
+	public List<StoreProductDto> ListStoreProductDtos { get; set; } = new();
+	public string CustomerName { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+		CustomerName = userInfo.User.Identity.Name;
+		
+		//Här hämta alla produkter från databasen:
+		var response = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "getAllProducts");
+
+		//TODo: ha en kolla att det inte är inaktiva produkter som listas.
+
+		if (response != null)
+		{
+			ListStoreProductDtos.AddRange(response);
+		}
+
+		await base.OnInitializedAsync();
+	}
+
+	//Metod för att lägga till 
+
+	public void AddProductToCart(StoreProductDto productDto)
+	{
+		//Lägg till check att öka antal istället.
+		//Kanske ska lägga detta i en ytterligare class med antal.
+		
+		ShoppingCartDto.Add(productDto);
+		
+
+		//Borde spara carten i en cookie eller sessionstorage
+	}
+
+	//Metod för att ta bort produkter ur listan:
+	public void RemoveProductFromCart(StoreProductDto productDto)
+	{
+	//Lägg till check att minska antal istället.
+	//Kanske ska lägga detta i en ytterligare class med antal.
+
+		ShoppingCartDto.Remove(productDto);
+	}
+
+	public async Task CheckOut()
+	{
+		//säga vem som är kunden:
+		//Lägga detta i nytt objekt
+
+		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		var user = userInfo.User.Identity.Name;
+
+
+		var newOrder = new OrderDto()
+		{
+			ProductDtos = ShoppingCartDto,
+			user = user
+		};
+
+		//skicka själva kundobjektet:
+		await HttpClient.PostAsJsonAsync<OrderDto>(HttpClient.BaseAddress + "placeOrder", newOrder);
+
+		ShoppingCartDto = new();
+	}
+}

@@ -13,7 +13,7 @@ public class StoreService
 	private readonly IStoreRepository<Order> _orderStoreRepository;
 	private readonly CustomerService _customerService;
 	private Order _activeOrder; //Hur sätta denna??
-	private List<StoreProductDto> _shoppingCart = new(); //När skapas den?
+	private List<StoreProductDto> _shoppingCart = new(); //När skapas den? Kommer ursprungligen från FrontEnddelen
 	private StoreProductDto _activeProductDto;
 
 
@@ -24,14 +24,7 @@ public class StoreService
 		_orderStoreRepository = orderStoreRepository;
 
 	}
-
-	public StoreProductDto ActiveProductDto
-	{
-		get => _activeProductDto;
-		set => _activeProductDto = value;
-	}
-
-
+	
 	//Hämta alla produkter, kan ju baka in kategorier och sådant här egentligen?
 	public async Task<IEnumerable<StoreProductDto>> GetAllProducts()
 	{
@@ -96,38 +89,45 @@ public class StoreService
 
 	//metoder:
 
-
-	
-
-
-
-
-	public async Task PlaceOrder()
+	public async Task PlaceOrder(OrderDto newOrderDto)
 	{
-		if (_shoppingCart.Count > 0) //&& _customerService.ActiveCustomer != null)
+		if (newOrderDto.ProductDtos != null) //&& _customerService.ActiveCustomer != null)
 		{
-			var newOrder = new Order();
-			newOrder.ProductDtos = _shoppingCart; //Select(ConvertProductToDto);
-			newOrder.Customer = ConvertCustomerToDto(_customerService.ActiveCustomer);
-			newOrder.OrderDate = DateTime.UtcNow;
-
 			//Calculate sum:
 			//Withdraw amount from account:
 			//If ok:
 
+			//Hitta namnet på användaren utifrån den info som skickas
+			
+
+			var newOrder = new Order()
+			{
+				CustomerDto = ConvertCustomerToDto(await _customerService.FindUserByName(newOrderDto.user)),
+				ProductDtos = newOrderDto.ProductDtos,
+				OrderDate = DateTime.UtcNow
+			};
 
 			//TODO: Lägg till svarskod.
 			await _orderStoreRepository.AddItemAsync(newOrder);
 		}
 	}
 
+	//private StoreProduct ConvertProductFromDto(StoreProductDto productDto)
+	//{
+	//	return new StoreProduct()
+	//	{
+
+	//	};
+	//}
+
 	private CustomerDto ConvertCustomerToDto(ApplicationUser activeCustomer)
 	{
 		return new CustomerDto()
 		{
 			UserName = activeCustomer.UserName,
-			Email = activeCustomer.Email
-			//Todo: Fyll på med mer info här som behövs.
+			Email = activeCustomer.Email,
+			Address = activeCustomer.Adress,
+			Phone = activeCustomer.PhoneNumber
 		};
 	}
 
@@ -144,12 +144,6 @@ public class StoreService
 
 	//Temp metod
 
-	public async Task FillCart()
-	{
-		_shoppingCart.AddRange(await GetAllProducts());
-
-		await PlaceOrder();
-	}
 
 	//Eller ska detta ligga i FrontEnd?
 	public void AddProductToCart()

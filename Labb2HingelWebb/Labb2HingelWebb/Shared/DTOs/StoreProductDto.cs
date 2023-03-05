@@ -6,4 +6,5 @@ public class StoreProductDto
 	public string ProductDescription { get; set; } = String.Empty;
 	public ProductCategory ProductType { get; set; } = ProductCategory.None;
 	public int Price { get; set; }
+	public bool IsActive { get; set; }
 }
