@@ -1,3 +1,4 @@
+using System.Data;
 using Labb2HingelWebb.Client;
 using Labb2HingelWebb.Server.Data;
 using Labb2HingelWebb.Server.Models;
@@ -33,8 +34,8 @@ builder.Services.AddRazorPages();
 //Egna tillagda delar:
 
 builder.Services.AddScoped<IStoreRepository<StoreProduct>, ProductRepository>();
-builder.Services.AddScoped<StoreService>();
 builder.Services.AddScoped<IStoreRepository<Order>, OrderRepository>();
+builder.Services.AddScoped<StoreService>();
 
 
 builder.Services.AddScoped<CustomerService>();
@@ -89,6 +90,11 @@ app.MapGet("/findUserByName/{name}", async (CustomerService customerService, str
 	return await customerService.FindUserByName(name);
 });
 
+app.MapGet("/findCustomers", async (CustomerService customerService) =>
+{
+	return await customerService.FindAllUsers();
+});
+
 app.MapPost("/updateUser", async (CustomerService customerService, CustomerDto updatedCustomerDto) =>
 {
 	return await customerService.UpdateUser(updatedCustomerDto);
@@ -106,6 +112,11 @@ app.MapGet("/getAllProducts", async (StoreService storeService) =>
 	return await storeService.GetAllProducts();
 });
 
+app.MapDelete("/deleteProduct/{productName}", async (StoreService storeService, string productName) =>
+{
+	await storeService.DeleteProduct(productName);
+});
+
 app.MapGet("/getProductByName", async (StoreService storeService, string searchName) => await storeService.GetByName(searchName));
 
 
@@ -116,12 +127,16 @@ app.MapGet("/getProductByNumber", async (StoreService storeService, string id) =
 
 //Orders APIs, de mesta är för admin, måste kolla att vem som helst inte kan köra dessa:
 
-
-//Borde skicka en hel array med objekt och användarnamnet eller email i bodyn.
 app.MapPost("/placeOrder", async (StoreService storeService, OrderDto newOrder) =>
 {
 	await storeService.PlaceOrder(newOrder);
 });
+
+app.MapGet("/getCustomerOrders/{email}", async (StoreService storeService, string email) =>
+{
+	return await storeService.GetOrders(email);
+});
+
 //Få tillbaks shoppingcarten
 
 

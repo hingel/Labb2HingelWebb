@@ -42,15 +42,21 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 		return exists.ToList().Count > 0; //exists is null && exists.ToList().Count > 0;
 	}
 
+	//TODO: Ta hand om detta:
+	public async Task<IEnumerable<StoreProduct>> GetByEmail(string email)
+	{
+		throw new NotImplementedException();
+	}
+
 	public async Task<StoreProduct> GetItemByName(string productName)
 	{
 		var filter = Builders<StoreProduct>.Filter.StringIn("ProductName", productName); //TODO: Borde göra om detta.
-		var product = await _storeProductCollection.FindAsync(filter);
+		var products = await _storeProductCollection.FindAsync(filter);
 
 
 		//TODO: Gör null check
 
-		return product.FirstOrDefault();
+		return products.FirstOrDefault();
 	}
 
 
@@ -64,6 +70,13 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 
 		//return dtoProducts;
 		return products.FirstOrDefault();
+	}
+
+	public async Task DeleteItem(string name)
+	{
+		var filter = Builders<StoreProduct>.Filter.Eq("ProductName", name);
+		await _storeProductCollection.DeleteOneAsync(filter);
+
 	}
 
 	//Kunder nog vara en generell produktupdatering

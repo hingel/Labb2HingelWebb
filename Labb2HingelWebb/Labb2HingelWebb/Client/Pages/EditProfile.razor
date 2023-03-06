@@ -1,8 +1,11 @@
 ﻿@page "/EditProfile"
 @using Labb2HingelWebb.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
 
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
+
+@attribute [Authorize]
 
 <h3>EditProfile</h3>
 

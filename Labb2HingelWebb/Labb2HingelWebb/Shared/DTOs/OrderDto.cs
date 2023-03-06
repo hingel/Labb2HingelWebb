@@ -2,8 +2,10 @@
 
 public class OrderDto
 {
-	//public int Id { get; set; } //ToDO: Gör egen metod för detta. Finns inget inbyggt.
-	public string user { get; set; } //Vill inte spara lösenordsdelarna i denna del
+	public string Id { get; set; }
+	public string Email { get; set; } //Vill inte spara lösenordsdelarna i denna del
+	public string UserName { get; set; }
+	public string Address { get; set; }
 	public IEnumerable<StoreProductDto> ProductDtos { get; set; }
 	public DateTime OrderDate { get; set; }
 }

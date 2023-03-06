@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
+using Labb2HingelWebb.Client;
 using Labb2HingelWebb.Server.Models;
 using Labb2HingelWebb.Shared.DTOs;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Labb2HingelWebb.Server.Services;
 
@@ -90,5 +92,27 @@ public class CustomerService
 		userToUpdate.UserName = updatedCustomerDto.UserName;
 
 		return await _userManager.UpdateAsync(userToUpdate);
+	}
+
+	public async Task<IEnumerable<CustomerDto>> FindAllUsers()
+	{
+		var result = _userManager.Users;
+		
+
+
+		//TODO: Lite konstigt med, borde finnas en async här
+		
+		return _userManager.Users.Select(ConvertCustomerToDto);
+	}
+	
+	private CustomerDto ConvertCustomerToDto(ApplicationUser activeCustomer)
+	{
+		return new CustomerDto()
+		{
+			UserName = activeCustomer.UserName,
+			Email = activeCustomer.Email,
+			Address = activeCustomer.Adress,
+			Phone = activeCustomer.PhoneNumber
+		};
 	}
 }

@@ -51,8 +51,15 @@
 	{
 		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
-		CustomerName = userInfo.User.Identity.Name;
-		
+		if (userInfo != null)
+		{
+			CustomerName = userInfo.User.Identity.Name;
+		}
+		else
+		{
+			CustomerName = "Not logged in";
+		}
+
 		//Här hämta alla produkter från databasen:
 		var response = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "getAllProducts");
 
@@ -76,7 +83,7 @@
 		ShoppingCartDto.Add(productDto);
 		
 
-		//Borde spara carten i en cookie eller sessionstorage
+		//Todo: Borde spara carten i en cookie eller sessionstorage
 	}
 
 	//Metod för att ta bort produkter ur listan:
@@ -100,7 +107,7 @@
 		var newOrder = new OrderDto()
 		{
 			ProductDtos = ShoppingCartDto,
-			user = user
+			UserName = user
 		};
 
 		//skicka själva kundobjektet:

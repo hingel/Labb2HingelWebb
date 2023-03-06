@@ -6,7 +6,8 @@
 
 <h3>EditProducts</h3>
 
-<button class="btn btn-primary">NewProduct</button>
+@*<button class="btn btn-primary">NewProduct</button>*@
+<button class="btn btn-primary" @onclick="DeleteProduct">Delete Selected Product</button>
 
 <div class="container">
 	<EditForm Model="ActiveProductDto" OnSubmit="UpdateProduct">
@@ -67,16 +68,18 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await GetProducts();
+
+		await base.OnInitializedAsync();
 	}
 
 	private async Task GetProducts()
 	{
-		var result = await HttpClient.GetFromJsonAsync<List<StoreProductDto>>(HttpClient.BaseAddress + "getAllProducts");
+		var result = await HttpClient.GetFromJsonAsync<IEnumerable<StoreProductDto>>(HttpClient.BaseAddress + "getAllProducts");
 		
 		if (result == null)
 			return;
 
-		StoreProductDtos = result;
+		StoreProductDtos = result.ToList();
 		
 		FilterResults();
 		
@@ -115,4 +118,14 @@
 		await GetProducts();
 	}
 
+	//TODO: Metod för att ta bort en produkt ur stortimentet.
+	private async Task DeleteProduct()
+	{
+		if(ActiveProductDto == null)
+			return;
+
+		await HttpClient.DeleteAsync(HttpClient.BaseAddress + $"deleteProduct/{ActiveProductDto.ProductName}");
+
+		await GetProducts();
+	}
 }

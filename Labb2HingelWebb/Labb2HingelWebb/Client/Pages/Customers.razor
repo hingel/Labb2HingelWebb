@@ -1,0 +1,110 @@
+﻿@page "/Customers"
+@using Microsoft.AspNetCore.Authorization
+@using Labb2HingelWebb.Shared.DTOs
+
+@inject HttpClient HttpClient
+
+@attribute [Authorize]
+
+<h3>Customers</h3>
+
+<div class="container">
+	<EditForm Model="SearchResult" OnSubmit="FilterResults">
+		<div class="form-control">
+			<label>Enter email to search</label>
+			<InputText @bind-Value="EmailSearch"></InputText>
+		</div>
+		<button class="btn btn-primary">search</button>
+	</EditForm>
+</div>
+<br/>
+
+<ul class="container">
+	<Virtualize Items="SearchResult" Context="customerDto">
+		<li class="list-group">
+			<div @onclick="() => SelectCustomer(customerDto)">
+				@customerDto.Email @customerDto.UserName
+			</div>
+		</li>
+	</Virtualize>
+</ul>
+
+<h3>Lift Of orders</h3>
+<div class="container">
+	<Virtualize Items="CustomerOrders" Context="orderDto">
+		<li class="list-group">
+			<div @onclick="() => SelectedOrder(orderDto)">
+				@orderDto.Id @orderDto.OrderDate
+			</div>
+		</li>
+	</Virtualize>
+</div>
+
+@*<textarea>@ActiveOrder.Email @ActiveOrder.Address</textarea>*@
+
+<div class="container">
+	<Virtualize Items="ActiveListProducts" Context="productDto">
+		<li class="list-group">
+			<div>
+				@productDto.ProductName @productDto.Price
+			</div>
+		</li>
+	</Virtualize>
+</div>
+
+
+@code {
+	public List<CustomerDto> CustomerDtos { get; set; } = new();
+	public List<CustomerDto> SearchResult { get; set; } = new();
+	public CustomerDto ActiveCustomer { get; set; } = new();
+	public string EmailSearch { get; set; } = "";
+	public List<OrderDto> CustomerOrders { get; set; } = new();
+	public OrderDto ActiveOrder { get; set; } = new();
+	public List<StoreProductDto> ActiveListProducts { get; set; } = new();
+
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		var result = await HttpClient.GetFromJsonAsync<List<CustomerDto>>(HttpClient.BaseAddress + "findCustomers");
+		
+		if (result == null)
+			return;
+
+		CustomerDtos = result;
+		
+		FilterResults();
+
+		await base.OnInitializedAsync();
+	}
+
+	private async Task SelectCustomer(CustomerDto customerDto)
+	{
+		ActiveCustomer = customerDto;
+		ActiveListProducts.Clear();
+
+		var result = await HttpClient.GetFromJsonAsync<IEnumerable<OrderDto>>(HttpClient.BaseAddress + $"getCustomerOrders/{customerDto.Email}");
+
+		CustomerOrders = result.ToList();
+
+	}
+
+	private void FilterResults()
+	{
+		if (EmailSearch != "")
+		{
+			SearchResult = CustomerDtos.Where(c => c.Email.ToLower().Contains(EmailSearch.ToLower())).ToList();
+		}
+
+		else
+		{
+			SearchResult = CustomerDtos;
+		}
+	}
+
+	private async Task SelectedOrder(OrderDto orderDto)
+	{
+		ActiveOrder = orderDto;
+		ActiveListProducts = ActiveOrder.ProductDtos.ToList();
+	}
+}

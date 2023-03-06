@@ -81,16 +81,6 @@ public class StoreService
 		return ConvertProductToDto(product);
 	}
 
-	//Borde inte behövas, kör allt genom uppdateringsmetoden istället.
-	public async Task DiscontinueItem(string productName)
-	{
-		var toUpdate = await _productStoreRepository.GetItemByName(productName);
-		
-		toUpdate.IsActive = false;
-
-		await _productStoreRepository.UpdateItem(toUpdate);
-	}
-
 	private StoreProductDto ConvertProductToDto(StoreProduct product)
 	{
 		return new StoreProductDto()
@@ -116,7 +106,7 @@ public class StoreService
 
 			var newOrder = new Order()
 			{
-				CustomerDto = ConvertCustomerToDto(await _customerService.FindUserByName(newOrderDto.user)),
+				CustomerDto = ConvertCustomerToDto(await _customerService.FindUserByName(newOrderDto.UserName)),
 				ProductDtos = newOrderDto.ProductDtos,
 				OrderDate = DateTime.UtcNow
 			};
@@ -126,15 +116,21 @@ public class StoreService
 		}
 	}
 
-	//private StoreProduct ConvertProductFromDto(StoreProductDto productDto)
-	//{
-	//	return new StoreProduct()
-	//	{
+	public async Task<IEnumerable<OrderDto>> GetOrders (string email)
+	{
+		var orders = await _orderStoreRepository.GetByEmail(email);
 
-	//	};
-	//}
-
-
+		return orders.Select(o => new OrderDto()
+		{
+			OrderDate = o.OrderDate,
+			Id = o.Id,
+			ProductDtos = o.ProductDtos,
+			Email = o.CustomerDto.Email,
+			UserName = o.CustomerDto.UserName,
+			Address = o.CustomerDto.Address
+		});
+	}
+	
 	//Todo: Denna kanske inte borde ligga här i eftersom den tar hand om kundgrejer. Ligga i customer service
 	private CustomerDto ConvertCustomerToDto(ApplicationUser activeCustomer)
 	{
@@ -145,5 +141,10 @@ public class StoreService
 			Address = activeCustomer.Adress,
 			Phone = activeCustomer.PhoneNumber
 		};
+	}
+
+	public async Task DeleteProduct(string productToDelete)
+	{
+		await _productStoreRepository.DeleteItem(productToDelete);
 	}
 }
