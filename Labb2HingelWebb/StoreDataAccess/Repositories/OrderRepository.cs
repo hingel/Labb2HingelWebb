@@ -37,12 +37,12 @@ public class OrderRepository : IStoreRepository<Order>
 		throw new NotImplementedException();
 	}
 
-	public async Task<IEnumerable<Order>> GetItemByName(string name)
+	public async Task<Order> GetItemByName(string name)
 	{
 		throw new NotImplementedException();
 	}
 
-	public async Task<IEnumerable<Order>> GetItemByNumber(string id)
+	public async Task<Order> GetItemByNumber(string id)
 	{
 		throw new NotImplementedException();
 	}

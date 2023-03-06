@@ -1,32 +1,48 @@
 ﻿@page "/EditProducts"
 @using Labb2HingelWebb.Shared.DTOs
-
+@using Microsoft.AspNetCore.Authorization
 @inject HttpClient HttpClient
+@attribute [Authorize]
 
 <h3>EditProducts</h3>
 
 <button class="btn btn-primary">NewProduct</button>
 
-<EditForm Model="ActiveProductDto" OnSubmit="UpdateProduct">
+<div class="container">
+	<EditForm Model="ActiveProductDto" OnSubmit="UpdateProduct">
+		<div class="form-control">
+			<label>Name</label>
+			<InputText @bind-Value="ActiveProductDto.ProductName"></InputText>
+			<label>Description</label>
+			<InputText @bind-Value="ActiveProductDto.ProductDescription"></InputText>
+			@*<label>Type 1=Rock; 2=Stick; 3=Dirt; 4=None;s </label>
+			<InputNumber @bind-Value="ActiveProductDto.ProductType"></InputNumber>*@
+			<label>IsActive</label>
+			<InputCheckbox @bind-Value="ActiveProductDto.IsActive"></InputCheckbox>
+			<label>Price</label>
+			<InputNumber @bind-Value="ActiveProductDto.Price"></InputNumber>
+		</div>
+		<button class="btn btn-primary">Send</button>
+	</EditForm>
+</div>
+
+<div class="container">
+	<EditForm Model="SearchResult" OnSubmit="FilterResults">
 	<div class="form-control">
-		<label>Name</label>
-		<InputText @bind-Value="ActiveProductDto.ProductName"></InputText>
-		<label>Description</label>
-		<InputText @bind-Value="ActiveProductDto.ProductDescription"></InputText>
-		<label>Type</label>
-		<InputText @bind-Value="ActiveProductDto.ProductType"></InputText>
-		<label>IsActive</label>
-		<InputText @bind-Value="ActiveProductDto.IsActive">Göra om detta till en check box</InputText>
-		<label>Price</label>
-		<InputText @bind-Value="ActiveProductDto.Price"></InputText>
+		<label>Enter search word</label>
+		<InputText @bind-Value="SearchWord"></InputText>
+		<label>Enter number of returns</label>
+		<InputNumber @bind-Value="NoOfResults"></InputNumber>
+		<label>Enter category</label>
 	</div>
-	<button class="btn btn-primary">Send</button>
-	
-</EditForm>
+	<button class="btn btn-primary">search</button>
+	</EditForm>
+</div>
+<br/>
 
-
+<h3>Existing Products</h3>
 <ul class="container">
-	<Virtualize Items="StoreProductDtos" Context="productDto">
+	<Virtualize Items="SearchResult" Context="productDto">
 		<li class="list-group">
 			<div @onclick="() => SelectProduct(productDto)">
 				@productDto.ProductName @productDto.Price
@@ -37,21 +53,51 @@
 
 
 @code {
-	public StoreProductDto ActiveProductDto { get; set; } = new StoreProductDto();
 
+	public StoreProductDto ActiveProductDto { get; set; } = new StoreProductDto();
 	public List<StoreProductDto> StoreProductDtos { get; set; } = new();
+	public List<StoreProductDto> SearchResult { get; set; } = new();
+	public string SearchWord { get; set; } = "";
+
+	public int NoOfResults { get; set; } = 5;
+
+	//ToDO: Lägga till kategori sökning:
+	
 
 	protected override async Task OnInitializedAsync()
 	{
-		var result = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "getAllProducts");
-		
-		if (result != null)
-		{
-			StoreProductDtos.AddRange(result);
-		}
-
+		await GetProducts();
 	}
 
+	private async Task GetProducts()
+	{
+		var result = await HttpClient.GetFromJsonAsync<List<StoreProductDto>>(HttpClient.BaseAddress + "getAllProducts");
+		
+		if (result == null)
+			return;
+
+		StoreProductDtos = result;
+		
+		FilterResults();
+		
+	}
+
+	private void FilterResults()
+	{
+		if (SearchWord != "")
+		{
+			SearchResult = StoreProductDtos.Where(p => p.ProductName.ToLower().Contains(SearchWord.ToLower())).Take(NoOfResults).ToList();
+		}
+
+		else
+		{
+			SearchResult = StoreProductDtos.Take(NoOfResults).ToList();
+		}
+
+		//ToDO: Lägga till Typsökning också.
+
+		//StateHasChanged(); //Behövs denna?
+	}
 
 	//Den selekterade produkten i listan
 	private void SelectProduct(StoreProductDto selectedProductDto)
@@ -61,10 +107,12 @@
 		//Kanske behöver uppdatera fälten p.n.s.
 	}
 
-	//När produkten ska uppdateras, om den ska uppdatera befintlig eller göra en ny. Men denna check kanske görs på serversidan istället.
-	private void UpdateProduct()
+	//När produkten ska uppdateras eller läggas till ny.
+	private async Task UpdateProduct()
 	{
-		throw new NotImplementedException();
+		await HttpClient.PostAsJsonAsync<StoreProductDto>(HttpClient.BaseAddress + "addStoreProduct", ActiveProductDto);
+
+		await GetProducts();
 	}
 
 }

@@ -107,8 +107,10 @@ app.MapGet("/getAllProducts", async (StoreService storeService) =>
 });
 
 app.MapGet("/getProductByName", async (StoreService storeService, string searchName) => await storeService.GetByName(searchName));
+
+
 app.MapGet("/getProductByNumber", async (StoreService storeService, string id) => await storeService.GetById(id));
-app.MapPut("/getDiscontinueProduct", async (StoreService storeService, string searchName) => await storeService.DiscontinueItem(searchName));
+//app.MapPut("/getDiscontinueProduct", async (StoreService storeService, string searchName) => await storeService.DiscontinueItem(searchName));
 
 
 

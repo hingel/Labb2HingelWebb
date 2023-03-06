@@ -7,87 +7,101 @@ namespace Labb2HingelWebb.Server.Services;
 
 //För att ta hand om affären, när listor måste samköras med kunder och ordrar.
 //Uppdatera varor etc.
+
+//TODO: denna borde nog delas i två delar för att inte blanda ihop för mycket? Single Responsibility
 public class StoreService
 {
 	private readonly IStoreRepository<StoreProduct> _productStoreRepository;
 	private readonly IStoreRepository<Order> _orderStoreRepository;
 	private readonly CustomerService _customerService;
-	private Order _activeOrder; //Hur sätta denna??
-	private List<StoreProductDto> _shoppingCart = new(); //När skapas den? Kommer ursprungligen från FrontEnddelen
-	private StoreProductDto _activeProductDto;
-
 
 	public StoreService(IStoreRepository<StoreProduct> productStoreRepository, CustomerService customerService, IStoreRepository<Order> orderStoreRepository)
 	{
 		_productStoreRepository = productStoreRepository;
 		_customerService = customerService;
 		_orderStoreRepository = orderStoreRepository;
-
 	}
 	
 	//Hämta alla produkter, kan ju baka in kategorier och sådant här egentligen?
 	public async Task<IEnumerable<StoreProductDto>> GetAllProducts()
 	{
-		//lägga på eventuella filter här i på något sätt
-		//Kategorier
-		//Eller ska allt ligga som separata metoder?
-		//Kan ligga som if-satser om något är tomt eller liknande?
-		//Checka om proukten är active eller inte?
+		var products = await _productStoreRepository.GetAllItems();
+
+		return products.Select(ConvertProductToDto);
+	}
+
+	public async Task AddNewProduct(StoreProductDto newDtoProduct) //TODO: Returnera ett repspons
+	{
+		//Först kolla om produkten med samma namn redan existerar:
 
 		var products = await _productStoreRepository.GetAllItems();
 
-		return products.Select(ConvertToDto);
-	}
-
-	public async Task AddNewProduct(StoreProductDto newDtoProduct)
-	{
-		var newProduct = new StoreProduct()
+		if (products.Any(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower()))) //TODO: Detta skulle kanske kunna bytas mot att köras i existerande funktion redan i repositoriet?
 		{
-			ProductName = newDtoProduct.ProductName,
-			ProductDescription = newDtoProduct.ProductDescription,
-			ProductType = newDtoProduct.ProductType,
-			IsActive = true
-		};
+			var toUpdate = await _productStoreRepository.GetItemByName(newDtoProduct.ProductName);
 
-		await _productStoreRepository.AddItemAsync(newProduct);
+			toUpdate.ProductDescription = newDtoProduct.ProductDescription;
+			toUpdate.ProductName = newDtoProduct.ProductName;
+			toUpdate.IsActive = newDtoProduct.IsActive;
+			toUpdate.Price = newDtoProduct.Price;
+			toUpdate.ProductType = newDtoProduct.ProductType;
+
+			await _productStoreRepository.UpdateItem(toUpdate);
+
+			//Returnera svar härifrån om ok:
+		}
+
+		else
+		{
+			var newProduct = new StoreProduct()
+			{
+				ProductName = newDtoProduct.ProductName,
+				ProductDescription = newDtoProduct.ProductDescription,
+				ProductType = newDtoProduct.ProductType,
+				IsActive = true
+			};
+
+			await _productStoreRepository.AddItemAsync(newProduct);
+
+			//Returnera svar härifrån om ok:
+		}
 	}
 
-	public async Task<IEnumerable<StoreProductDto>> GetByName(string productName)
+	public async Task<StoreProductDto> GetByName(string productName)
 	{
-		var products = await _productStoreRepository.GetItemByName(productName);
+		var product = await _productStoreRepository.GetItemByName(productName);
 
-		return products.Select(ConvertToDto);
+		return ConvertProductToDto(product);
 	}
 
-	public async Task<IEnumerable<StoreProductDto>> GetById(string id)
+	public async Task<StoreProductDto> GetById(string id)
 	{
-		var products = await _productStoreRepository.GetItemByNumber(id);
+		var product = await _productStoreRepository.GetItemByNumber(id);
 
-		return products.Select(ConvertToDto);
+		return ConvertProductToDto(product);
 	}
 
+	//Borde inte behövas, kör allt genom uppdateringsmetoden istället.
 	public async Task DiscontinueItem(string productName)
 	{
 		var toUpdate = await _productStoreRepository.GetItemByName(productName);
+		
+		toUpdate.IsActive = false;
 
-		var productToUpdate = toUpdate.First();
-
-		productToUpdate.IsActive = false;
-
-		await _productStoreRepository.UpdateItem(productToUpdate);
+		await _productStoreRepository.UpdateItem(toUpdate);
 	}
 
-	private StoreProductDto ConvertToDto(StoreProduct product)
+	private StoreProductDto ConvertProductToDto(StoreProduct product)
 	{
 		return new StoreProductDto()
 		{
 			ProductName = product.ProductName,
 			ProductDescription = product.ProductDescription,
 			ProductType = product.ProductType,
+			Price = product.Price,
+			IsActive = product.IsActive
 		};
 	}
-
-	//metoder:
 
 	public async Task PlaceOrder(OrderDto newOrderDto)
 	{
@@ -120,6 +134,8 @@ public class StoreService
 	//	};
 	//}
 
+
+	//Todo: Denna kanske inte borde ligga här i eftersom den tar hand om kundgrejer. Ligga i customer service
 	private CustomerDto ConvertCustomerToDto(ApplicationUser activeCustomer)
 	{
 		return new CustomerDto()
@@ -129,31 +145,5 @@ public class StoreService
 			Address = activeCustomer.Adress,
 			Phone = activeCustomer.PhoneNumber
 		};
-	}
-
-	//private StoreProductDto ConvertProductToDto(StoreProduct product)
-	//{
-	//	return new StoreProductDto()
-	//	{
-	//		ProductDescription = product.ProductDescription,
-	//		ProductName = product.ProductName,
-	//		Price = product.Price,
-	//		ProductType = product.ProductType
-	//	};
-	//}
-
-	//Temp metod
-
-
-	//Eller ska detta ligga i FrontEnd?
-	public void AddProductToCart()
-	{
-		_shoppingCart.Add(_activeProductDto);
-	}
-
-	//Eller ska detta ligga i FrontEnd?
-	public void RemoveProductFromCart()
-	{
-		_shoppingCart.Remove(_activeProductDto);
 	}
 }

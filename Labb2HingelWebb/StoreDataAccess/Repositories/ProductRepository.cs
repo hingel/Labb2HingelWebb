@@ -33,6 +33,7 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 		//ToDO: Fixa svarsmeddelande
 	}
 
+	//Är denna check tillförlitlig?
 	private async Task<bool> CheckProductExists(StoreProduct newProduct)
 	{
 		var filter = Builders<StoreProduct>.Filter.Eq("ProductName", newProduct.ProductName);
@@ -41,22 +42,20 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 		return exists.ToList().Count > 0; //exists is null && exists.ToList().Count > 0;
 	}
 
-	//TODO: ska jag göra till en GetAll och sen använda linq-uttryck? Men jobbigt att hämta hela databasen.
-	public async Task<IEnumerable<StoreProduct>> GetItemByName(string productName)
+	public async Task<StoreProduct> GetItemByName(string productName)
 	{
 		var filter = Builders<StoreProduct>.Filter.StringIn("ProductName", productName); //TODO: Borde göra om detta.
-		var products = await _storeProductCollection.FindAsync(filter);
+		var product = await _storeProductCollection.FindAsync(filter);
 
 
 		//TODO: Gör null check
 
-		//return dtoProducts;
-		return products.ToEnumerable();
+		return product.FirstOrDefault();
 	}
 
 
 	//TODO: Fixa detta med id på ett bättre sätt. Ska jag lägga till en variabel till i objektet?
-	public async Task<IEnumerable<StoreProduct>> GetItemByNumber(string id)
+	public async Task<StoreProduct> GetItemByNumber(string id)
 	{
 		var filter = Builders<StoreProduct>.Filter.Eq("ProductId", id);
 		var products = await _storeProductCollection.FindAsync(filter);
@@ -64,7 +63,7 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 		//TODO: Gör null check
 
 		//return dtoProducts;
-		return products.ToEnumerable();
+		return products.FirstOrDefault();
 	}
 
 	//Kunder nog vara en generell produktupdatering
@@ -74,7 +73,8 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 		var update = Builders<StoreProduct>.Update.Set("ProductName", updatedItem.ProductName)
 			.Set("ProductDescription", updatedItem.ProductDescription)
 			.Set("ProductType", updatedItem.ProductType)
-			.Set("IsActive", false);
+			.Set("IsActive", updatedItem.IsActive)
+			.Set("Price", updatedItem.Price);
 
 		await _storeProductCollection.FindOneAndUpdateAsync(filter, update,
 			new FindOneAndUpdateOptions<StoreProduct, StoreProduct>() { IsUpsert = true });
@@ -93,17 +93,5 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 		//return dtoProducts;
 		return products.ToEnumerable();
 	}
-
-	//TODO: Ta bort om det inte funkar att ha i andra filen
-	//private StoreProductDto ConvertToDto(StoreProduct product)
-	//{
-	//	return new StoreProductDto()
-	//	{
-	//		ProductName = product.ProductName,
-	//		ProductDescription = product.ProductDescription,
-	//		ProductType = product.ProductType,
-	//		IsActive = product.IsActive
-	//	};
-	//}
-
+	
 }
