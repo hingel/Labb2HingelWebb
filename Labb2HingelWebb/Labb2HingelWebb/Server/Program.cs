@@ -1,6 +1,7 @@
 using System.Data;
 using Labb2HingelWebb.Client;
 using Labb2HingelWebb.Server.Data;
+using Labb2HingelWebb.Server.Extensions;
 using Labb2HingelWebb.Server.Models;
 using Labb2HingelWebb.Server.Services;
 using Labb2HingelWebb.Shared.DTOs;
@@ -79,49 +80,59 @@ app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
 
-//Customer APIs
-app.MapGet("/getUser", async (CustomerService customerService, string email) =>
-{
-	await customerService.FindUser(email);
-});
 
-app.MapGet("/findUserByName/{name}", async (CustomerService customerService, string name) =>
-{
-	return await customerService.FindUserByName(name);
-});
-
-app.MapGet("/findCustomers", async (CustomerService customerService) =>
-{
-	return await customerService.FindAllUsers();
-});
-
-app.MapPost("/updateUser", async (CustomerService customerService, CustomerDto updatedCustomerDto) =>
-{
-	return await customerService.UpdateUser(updatedCustomerDto);
-});
-
+app.MapStoreEndPoints();
 //StoreItem APIs Typ allt är admin grejer.
-app.MapPost("/addStoreProduct",
-	async (StoreService storeService, StoreProductDto newDtoProduct) =>
-	{
-		await storeService.AddNewProduct(newDtoProduct);
-	});
+//app.MapPost("/addStoreProduct",
+//	async (StoreService storeService, StoreProductDto newDtoProduct) =>
+//	{
+//		await storeService.AddNewProduct(newDtoProduct);
+//	});
 
-app.MapGet("/getAllProducts", async (StoreService storeService) =>
-{
-	return await storeService.GetAllProducts();
-});
+//app.MapGet("/getAllProducts", async (StoreService storeService) =>
+//{
+//	var test = 1;
 
-app.MapDelete("/deleteProduct/{productName}", async (StoreService storeService, string productName) =>
-{
-	await storeService.DeleteProduct(productName);
-});
+//	return await storeService.GetAllProducts();
+//});
 
-app.MapGet("/getProductByName", async (StoreService storeService, string searchName) => await storeService.GetByName(searchName));
+//app.MapDelete("/deleteProduct/{productName}", async (StoreService storeService, string productName) =>
+//{
+//	await storeService.DeleteProduct(productName);
+//});
+
+//app.MapGet("/getProductByName", async (StoreService storeService, string searchName) => await storeService.GetByName(searchName));
 
 
-app.MapGet("/getProductByNumber", async (StoreService storeService, string id) => await storeService.GetById(id));
-//app.MapPut("/getDiscontinueProduct", async (StoreService storeService, string searchName) => await storeService.DiscontinueItem(searchName));
+//app.MapGet("/getProductByNumber", async (StoreService storeService, string id) => await storeService.GetById(id));
+////app.MapPut("/getDiscontinueProduct", async (StoreService storeService, string searchName) => await storeService.DiscontinueItem(searchName));
+
+
+
+//Customer APIs
+
+app.MapCustomerEndPoints();
+
+//app.MapGet("/getUser", async (CustomerService customerService, string email) =>
+//{
+//	await customerService.FindUser(email);
+//});
+
+//app.MapGet("/findUserByName/{name}", async (CustomerService customerService, string name) =>
+//{
+//	return await customerService.FindUserByName(name);
+//});
+
+//app.MapGet("/findCustomers", async (CustomerService customerService) =>
+//{
+//	return await customerService.FindAllUsers();
+//});
+
+//app.MapPost("/updateUser", async (CustomerService customerService, CustomerDto updatedCustomerDto) =>
+//{
+//	return await customerService.UpdateUser(updatedCustomerDto);
+//});
+
 
 
 

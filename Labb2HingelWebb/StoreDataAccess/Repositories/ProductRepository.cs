@@ -79,7 +79,7 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 
 	}
 
-	//Kunder nog vara en generell produktupdatering
+	
 	public async Task UpdateItem(StoreProduct updatedItem)
 	{
 		var filter = Builders<StoreProduct>.Filter.Eq("Id", updatedItem.Id);

@@ -74,13 +74,19 @@
 
 	private async Task GetProducts()
 	{
-		var result = await HttpClient.GetFromJsonAsync<IEnumerable<StoreProductDto>>(HttpClient.BaseAddress + "getAllProducts");
+		//var response = await HttpClient.GetFromJsonAsync<StoreProductDto>(HttpClient.BaseAddress + "getProductByName/Soil");
+
+		var result = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "getAllProducts");
+
+		//var result = await HttpClient.GetFromJsonAsync<IEnumerable<StoreProductDto>>(HttpClient.BaseAddress + "getAllProducts");
 		
 		if (result == null)
 			return;
 
 		StoreProductDtos = result.ToList();
 		
+		//StoreProductDtos.Add(response);
+
 		FilterResults();
 		
 	}

@@ -22,7 +22,7 @@ public class StoreService
 		_orderStoreRepository = orderStoreRepository;
 	}
 	
-	//Hämta alla produkter, kan ju baka in kategorier och sådant här egentligen?
+	
 	public async Task<IEnumerable<StoreProductDto>> GetAllProducts()
 	{
 		var products = await _productStoreRepository.GetAllItems();
@@ -32,8 +32,6 @@ public class StoreService
 
 	public async Task AddNewProduct(StoreProductDto newDtoProduct) //TODO: Returnera ett repspons
 	{
-		//Först kolla om produkten med samma namn redan existerar:
-
 		var products = await _productStoreRepository.GetAllItems();
 
 		if (products.Any(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower()))) //TODO: Detta skulle kanske kunna bytas mot att köras i existerande funktion redan i repositoriet?
@@ -58,7 +56,8 @@ public class StoreService
 				ProductName = newDtoProduct.ProductName,
 				ProductDescription = newDtoProduct.ProductDescription,
 				ProductType = newDtoProduct.ProductType,
-				IsActive = true
+				IsActive = true,
+				Price = newDtoProduct.Price
 			};
 
 			await _productStoreRepository.AddItemAsync(newProduct);

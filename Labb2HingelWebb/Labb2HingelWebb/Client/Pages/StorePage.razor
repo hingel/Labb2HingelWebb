@@ -1,8 +1,11 @@
 ﻿@page "/StorePage"
 @using Labb2HingelWebb.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
 
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
+
+@attribute [Authorize]
 
 <h3>StorePage</h3>
 
@@ -51,23 +54,20 @@
 	{
 		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
-		if (userInfo != null)
-		{
-			CustomerName = userInfo.User.Identity.Name;
-		}
-		else
-		{
-			CustomerName = "Not logged in";
-		}
+
+		CustomerName = userInfo.User.Identity.Name;
+
+		//var response = await HttpClient.GetFromJsonAsync<StoreProductDto>(HttpClient.BaseAddress + "getProductByName/Soil");
 
 		//Här hämta alla produkter från databasen:
-		var response = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "getAllProducts");
+		var response = await HttpClient.GetFromJsonAsync<List<StoreProductDto>>(HttpClient.BaseAddress + "getAllProducts");
 
 		//TODo: ha en kolla att det inte är inaktiva produkter som listas.
 
 		if (response != null)
 		{
 			ListStoreProductDtos.AddRange(response);
+			//ListStoreProductDtos.Add(response);
 		}
 
 		await base.OnInitializedAsync();
