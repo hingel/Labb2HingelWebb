@@ -3,7 +3,7 @@ using StoreDataAccess.Models;
 
 namespace StoreDataAccess.Repositories;
 
-public class ProductRepository : IStoreRepository<StoreProduct>
+public class ProductRepository : IProductRepository<StoreProduct>
 {
 	private readonly IMongoCollection<StoreProduct> _storeProductCollection;
 
@@ -41,13 +41,7 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 		
 		return exists.ToList().Count > 0; //exists is null && exists.ToList().Count > 0;
 	}
-
-	//TODO: Ta hand om detta:
-	public async Task<IEnumerable<StoreProduct>> GetByEmail(string email)
-	{
-		throw new NotImplementedException();
-	}
-
+	
 	public async Task<StoreProduct> GetItemByName(string productName)
 	{
 		var filter = Builders<StoreProduct>.Filter.StringIn("ProductName", productName); //TODO: Borde göra om detta.
@@ -58,10 +52,9 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 
 		return products.FirstOrDefault();
 	}
-
-
+	
 	//TODO: Fixa detta med id på ett bättre sätt. Ska jag lägga till en variabel till i objektet?
-	public async Task<StoreProduct> GetItemByNumber(string id)
+	public async Task<StoreProduct> GetItemById(string id)
 	{
 		var filter = Builders<StoreProduct>.Filter.Eq("ProductId", id);
 		var products = await _storeProductCollection.FindAsync(filter);
@@ -76,7 +69,6 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 	{
 		var filter = Builders<StoreProduct>.Filter.Eq("ProductName", name);
 		await _storeProductCollection.DeleteOneAsync(filter);
-
 	}
 
 	
@@ -98,13 +90,7 @@ public class ProductRepository : IStoreRepository<StoreProduct>
 	public async Task<IEnumerable<StoreProduct>> GetAllItems()
 	{
 		var products = await _storeProductCollection.FindAsync(_ => true);
-
-		//var dtoProducts = products.ToEnumerable().Select(ConvertToDto);
-
-		//TODO: Gör null check??
-
-		//return dtoProducts;
+		
 		return products.ToEnumerable();
 	}
-	
 }

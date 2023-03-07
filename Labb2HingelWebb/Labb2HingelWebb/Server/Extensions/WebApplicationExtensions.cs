@@ -7,16 +7,11 @@ public static class WebApplicationExtensions
 {
 	public static WebApplication MapCustomerEndPoints(this WebApplication app)
 	{
-		//TODO: Gå igenom och kolla vilka som verkligen används!!!
-
-		app.MapGet("/getUser", async (CustomerService customerService, string email) =>
-			await customerService.FindUser(email));
-
 		app.MapGet("/findUserByName/{name}", async (CustomerService customerService, string name) =>
 			await customerService.FindUserByName(name));
 
 		app.MapGet("/findCustomers", async (CustomerService customerService) => 
-			await customerService.FindAllUsers());
+			await customerService.FindCustomers());
 
 		app.MapPost("/updateUser", async (CustomerService customerService, CustomerDto updatedCustomerDto) => 
 			await customerService.UpdateUser(updatedCustomerDto));
@@ -26,28 +21,42 @@ public static class WebApplicationExtensions
 
 	public static WebApplication MapStoreEndPoints(this WebApplication app)
 	{
-		//snygga till det här:
+		//TODO: snygga till det här:
 
 		app.MapPost("/addStoreProduct",
-			async (StoreService storeService, StoreProductDto newDtoProduct) =>
+			async (ProductService storeService, StoreProductDto newDtoProduct) =>
 			{
 				await storeService.AddNewProduct(newDtoProduct);
 			});
 
-		app.MapGet("/getAllProducts", async (StoreService storeService) => await storeService.GetAllProducts());
-
-		app.MapDelete("/deleteProduct/{productName}", async (StoreService storeService, string productName) =>
+		app.MapGet("/allProducts", async (ProductService storeService) =>
 		{
-			await storeService.DeleteProduct(productName);
+			var response = await storeService.GetAllProducts();
+
+			//return response.Data;
+			return response.Success ? response.Data : null;
+			//Resukt.OK(Response) : Result.BadRequest(Response)
+			//TODO: ska jag skicka hela responset eller enbart datan?
 		});
 
-		app.MapGet("/getProductByName/{searchName}", async (StoreService storeService, string searchName) => await storeService.GetByName(searchName));
+		app.MapDelete("/deleteProduct/{productName}", async (ProductService storeService, string productName) =>
+			await storeService.DeleteProduct(productName));
 
+		return app;
+	}
 
-		//app.MapGet("/getProductByNumber", async (StoreService storeService, string id) => await storeService.GetById(id));
-		//app.MapPut("/getDiscontinueProduct", async (StoreService storeService, string searchName) => await storeService.DiscontinueItem(searchName));
+	public static WebApplication MapOrderEndPoints(this WebApplication app)
+	{
+		app.MapPost("/placeOrder", async (OrderService orderService, OrderDto newOrder) =>
+		{
+			await orderService.PlaceOrder(newOrder);
+		});
 
-
+		app.MapGet("/getCustomerOrders/{email}", async (OrderService orderService, string email) =>
+		{
+			return await orderService.GetOrders(email);
+		});
+		
 		return app;
 	}
 }

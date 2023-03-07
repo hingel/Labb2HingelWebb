@@ -7,7 +7,11 @@
 <h3>EditProducts</h3>
 
 @*<button class="btn btn-primary">NewProduct</button>*@
-<button class="btn btn-primary" @onclick="DeleteProduct">Delete Selected Product</button>
+<div>
+	<button class="btn btn-primary" @onclick="DeleteProduct">Delete Selected Product</button>
+	<p>@ResponseMessage</p>
+</div>
+
 
 <div class="container">
 	<EditForm Model="ActiveProductDto" OnSubmit="UpdateProduct">
@@ -59,6 +63,7 @@
 	public List<StoreProductDto> StoreProductDtos { get; set; } = new();
 	public List<StoreProductDto> SearchResult { get; set; } = new();
 	public string SearchWord { get; set; } = "";
+	public string ResponseMessage { get; set; } = "";
 
 	public int NoOfResults { get; set; } = 5;
 
@@ -74,21 +79,13 @@
 
 	private async Task GetProducts()
 	{
-		//var response = await HttpClient.GetFromJsonAsync<StoreProductDto>(HttpClient.BaseAddress + "getProductByName/Soil");
+		var result = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "allProducts");
 
-		var result = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "getAllProducts");
-
-		//var result = await HttpClient.GetFromJsonAsync<IEnumerable<StoreProductDto>>(HttpClient.BaseAddress + "getAllProducts");
-		
 		if (result == null)
 			return;
 
 		StoreProductDtos = result.ToList();
-		
-		//StoreProductDtos.Add(response);
-
 		FilterResults();
-		
 	}
 
 	private void FilterResults()
@@ -104,8 +101,6 @@
 		}
 
 		//ToDO: Lägga till Typsökning också.
-
-		//StateHasChanged(); //Behövs denna?
 	}
 
 	//Den selekterade produkten i listan
@@ -130,7 +125,9 @@
 		if(ActiveProductDto == null)
 			return;
 
-		await HttpClient.DeleteAsync(HttpClient.BaseAddress + $"deleteProduct/{ActiveProductDto.ProductName}");
+		var httpResponse = await HttpClient.DeleteAsync(HttpClient.BaseAddress + $"deleteProduct/{ActiveProductDto.ProductName}");
+
+		ResponseMessage = httpResponse.ToString();
 
 		await GetProducts();
 	}

@@ -21,17 +21,9 @@ public class CustomerService
 		_userManager = userManager;
 	}
 
-
-	//Flytta detta till någonannanstans eventuellt? Tror inte detta upplägget är så nödvändigt.
-	public ApplicationUser ActiveCustomer
-	{
-		get => _activeCustomer;
-		set => _activeCustomer = value;
-	}
-
-
-	//För att hitta en användare på servern och i nuläget uppdatera den
-	public async Task<IdentityResult> FindUser(string email)
+	
+	//TODO: För test i nuläget.
+	public async Task<IdentityResult> GetUserByEmail(string email)
 	{
 
 		//var test = _userManager.Users.Where(u => u.Email.Contains(email)).FirstOrDefault();
@@ -59,19 +51,6 @@ public class CustomerService
 		await _userManager.AddToRoleAsync(test, "admin");
 	}
 
-	public async Task<CustomerDto> FindUserDtoByName(string name)
-	{
-		var user = await _userManager.FindByNameAsync(name);
-
-		return new CustomerDto()
-		{
-			UserName = user.UserName,
-			Email = user.Email,
-
-			//Todo: Fyll på med mer info här som behövs.
-		};
-	}
-
 	public async Task<ApplicationUser> FindUserByName(string nickName)
 	{
 		var user = await _userManager.FindByNameAsync(nickName);
@@ -94,18 +73,16 @@ public class CustomerService
 		return await _userManager.UpdateAsync(userToUpdate);
 	}
 
-	public async Task<IEnumerable<CustomerDto>> FindAllUsers()
+	public async Task<IEnumerable<CustomerDto>> FindCustomers()
 	{
 		var result = _userManager.Users;
 		
-
-
 		//TODO: Lite konstigt med, borde finnas en async här
 		
 		return _userManager.Users.Select(ConvertCustomerToDto);
 	}
 	
-	private CustomerDto ConvertCustomerToDto(ApplicationUser activeCustomer)
+	public CustomerDto ConvertCustomerToDto(ApplicationUser activeCustomer)
 	{
 		return new CustomerDto()
 		{

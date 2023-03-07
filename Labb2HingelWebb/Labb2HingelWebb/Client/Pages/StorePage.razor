@@ -53,27 +53,21 @@
 	protected override async Task OnInitializedAsync()
 	{
 		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-
+		
 		CustomerName = userInfo.User.Identity.Name;
-
-		//var response = await HttpClient.GetFromJsonAsync<StoreProductDto>(HttpClient.BaseAddress + "getProductByName/Soil");
-
+		
 		//Här hämta alla produkter från databasen:
-		var response = await HttpClient.GetFromJsonAsync<List<StoreProductDto>>(HttpClient.BaseAddress + "getAllProducts");
+		var response = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "allProducts");
 
-		//TODo: ha en kolla att det inte är inaktiva produkter som listas.
+		//TODo: kolla att det inte är inaktiva produkter som listas.
 
 		if (response != null)
 		{
 			ListStoreProductDtos.AddRange(response);
-			//ListStoreProductDtos.Add(response);
 		}
 
 		await base.OnInitializedAsync();
 	}
-
-	//Metod för att lägga till 
 
 	public void AddProductToCart(StoreProductDto productDto)
 	{
@@ -81,9 +75,6 @@
 		//Kanske ska lägga detta i en ytterligare class med antal.
 		
 		ShoppingCartDto.Add(productDto);
-		
-
-		//Todo: Borde spara carten i en cookie eller sessionstorage
 	}
 
 	//Metod för att ta bort produkter ur listan:
