@@ -11,8 +11,6 @@ namespace Labb2HingelWebb.Server.Services;
 //Tillfällig class för att fatta strukturen 
 public class CustomerService
 {
-	//private readonly ICustomerRepository _customerRepo;
-	private ApplicationUser _activeCustomer; //TODO: Eller ska det vara en Dto? //Customer heter något annat.
 	private UserManager<ApplicationUser> _userManager;
 
 
@@ -21,7 +19,15 @@ public class CustomerService
 		_userManager = userManager;
 	}
 
-	
+
+	//public void TestCreate()
+	//{
+	//	var nUser = new ApplicationUser() { UserName = "test", Email = "test@test.se" };
+	//	_userManager.CreateAsync(nUser, "Abcd123!");
+
+	//	_userManager.AddToRoleAsync(nUser, "admin");
+	//}
+
 	//TODO: För test i nuläget.
 	public async Task<IdentityResult> GetUserByEmail(string email)
 	{

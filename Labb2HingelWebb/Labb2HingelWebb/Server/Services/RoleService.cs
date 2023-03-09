@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Labb2HingelWebb.Server.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Labb2HingelWebb.Server.Services;
 
@@ -20,8 +21,6 @@ public class RoleService
 		newRole.Name = "admin";
 
 		_roleManager.CreateAsync(newRole);
-
-
 
 	}
 

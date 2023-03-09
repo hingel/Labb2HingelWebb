@@ -1,5 +1,6 @@
 ﻿using Labb2HingelWebb.Server.Services;
 using Labb2HingelWebb.Shared.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Labb2HingelWebb.Server.Extensions;
 
@@ -37,7 +38,7 @@ public static class WebApplicationExtensions
 			return response.Success ? response.Data : null;
 			//Resukt.OK(Response) : Result.BadRequest(Response)
 			//TODO: ska jag skicka hela responset eller enbart datan?
-		});
+		}).RequireAuthorization("AdminAccess");
 
 		app.MapDelete("/deleteProduct/{productName}", async (ProductService storeService, string productName) =>
 			await storeService.DeleteProduct(productName));

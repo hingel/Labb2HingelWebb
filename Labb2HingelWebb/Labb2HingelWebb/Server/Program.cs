@@ -1,13 +1,10 @@
-using System.Data;
-using Labb2HingelWebb.Client;
 using Labb2HingelWebb.Server.Data;
 using Labb2HingelWebb.Server.Extensions;
 using Labb2HingelWebb.Server.Models;
 using Labb2HingelWebb.Server.Services;
-using Labb2HingelWebb.Shared.DTOs;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using StoreDataAccess.Models;
 using StoreDataAccess.Repositories;
@@ -21,6 +18,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+	.AddRoles<IdentityRole>()
 	.AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityServer()
@@ -34,6 +32,9 @@ builder.Services.AddAuthentication()
 	})
 	.AddIdentityServerJwt();
 
+builder.Services.AddAuthorizationBuilder()
+	.AddPolicy("AdminAccess", policy =>
+		policy.RequireRole("admin"));
 
 
 builder.Services.AddControllersWithViews();
@@ -46,11 +47,11 @@ builder.Services.AddScoped<IOrderRepository<Order>, OrderRepository>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderService>();
 
-builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
+builder.Services.AddScoped<CustomerService>();
 
-//Får inte detta att funka, men får fixa det sen.
-//builder.Services.AddScoped<RoleManager<IdentityRole>>();
+builder.Services.AddScoped<RoleManager<IdentityRole>>();
+
 //builder.Services.AddScoped<RoleService>();
 
 var app = builder.Build();
@@ -75,10 +76,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-
+app.UseAuthentication();
 app.UseIdentityServer();
 app.UseAuthorization();
-
 
 app.MapRazorPages();
 app.MapControllers();
@@ -90,5 +90,32 @@ app.MapStoreEndPoints();
 app.MapCustomerEndPoints();
 
 app.MapOrderEndPoints();
+
+app.MapGet("/hello", async () =>
+{
+	using (var scope = app.Services.CreateScope())
+	{
+		var rolemgt = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+		var usrMngr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+		//await rolemgt.CreateAsync(new IdentityRole() {Name = "admin"});
+
+		//var nUser = new ApplicationUser() { UserName = "test", Email = "test@test.se" };
+
+		var role = rolemgt.Roles.FirstOrDefault(r => r.Name== "admin");
+
+		var nUser = await usrMngr.FindByEmailAsync("henrik.ingelsten@gmail.com");
+
+		//await usrMngr.CreateAsync(nUser, "Abcd123!");
+		//if (nUser is not null)
+		//	await usrMngr.AddToRoleAsync(nUser, role.Name);
+
+	}
+});
+
+
+app.MapGet( "/test", () => "hej"); //.RequireAuthorization("admin_greetings");
+
+
 
 app.Run();
