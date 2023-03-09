@@ -34,6 +34,8 @@ builder.Services.AddAuthentication()
 	})
 	.AddIdentityServerJwt();
 
+
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
