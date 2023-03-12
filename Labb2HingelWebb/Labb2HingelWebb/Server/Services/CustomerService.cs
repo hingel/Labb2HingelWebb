@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Labb2HingelWebb.Client;
 using Labb2HingelWebb.Server.Models;
+using Labb2HingelWebb.Shared;
 using Labb2HingelWebb.Shared.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,15 +21,7 @@ public class CustomerService
 	}
 
 
-	//public void TestCreate()
-	//{
-	//	var nUser = new ApplicationUser() { UserName = "test", Email = "test@test.se" };
-	//	_userManager.CreateAsync(nUser, "Abcd123!");
-
-	//	_userManager.AddToRoleAsync(nUser, "admin");
-	//}
-
-	//TODO: För test i nuläget.
+	//TODO: För test i nuläget. Används inte ta bort
 	public async Task<IdentityResult> GetUserByEmail(string email)
 	{
 
@@ -57,35 +50,77 @@ public class CustomerService
 		await _userManager.AddToRoleAsync(test, "admin");
 	}
 
-	public async Task<ApplicationUser> FindUserByName(string nickName)
+	public async Task<ServiceResponse<CustomerDto>> FindUserByName(string nickName)
 	{
 		var user = await _userManager.FindByNameAsync(nickName);
 
-		//Todo: Behövs felhantering
+		if (user != null)
+		{
+			return new ServiceResponse<CustomerDto>()
+			{
+				Data = ConvertCustomerToDto(user),
+				Message = $"{nickName} found",
+				Success = true
+			};
+		}
 
-		return user;
+		return new ServiceResponse<CustomerDto>()
+		{
+			Message = $"{nickName} not found",
+			Success = false
+		};
 	}
 
 	//TODO: Det ska generellt returneras CustomerDTOs härifrån till användaren.
 
-	public async Task<IdentityResult> UpdateUser(CustomerDto updatedCustomerDto)
+	public async Task<ServiceResponse<CustomerDto>> UpdateUser(CustomerDto updatedCustomerDto)
 	{
+		//TODO: Fråga till Niklas, ska detta läggas i en trycatch för att inte få exception??
 		var userToUpdate = await _userManager.FindByEmailAsync(updatedCustomerDto.Email);
 
 		userToUpdate.Adress = updatedCustomerDto.Address;
 		userToUpdate.PhoneNumber = updatedCustomerDto.Phone;
 		userToUpdate.UserName = updatedCustomerDto.UserName;
 
-		return await _userManager.UpdateAsync(userToUpdate);
+		var response = await _userManager.UpdateAsync(userToUpdate);
+
+		if (response.Succeeded)
+		{
+			return new ServiceResponse<CustomerDto>()
+			{
+				Data = ConvertCustomerToDto(userToUpdate),
+				Message = "User updated",
+				Success = true
+			};
+		}
+
+		return new ServiceResponse<CustomerDto>()
+		{
+			Message = "User not updated",
+			Success = false
+		};
 	}
 
-	public async Task<IEnumerable<CustomerDto>> FindCustomers()
+	public async Task<ServiceResponse<IEnumerable<CustomerDto>>> FindCustomers()
 	{
-		var result = _userManager.Users;
-		
 		//TODO: Lite konstigt med, borde finnas en async här
-		
-		return _userManager.Users.Select(ConvertCustomerToDto);
+		var result = _userManager.Users;
+
+		if (result != null)
+		{
+			return new ServiceResponse<IEnumerable<CustomerDto>>()
+			{
+				Data = result.Select(ConvertCustomerToDto),
+				Message = "Current users",
+				Success = true
+			};
+		}
+
+		return new ServiceResponse<IEnumerable<CustomerDto>>()
+		{
+			Message = "No users found",
+			Success = false
+		};
 	}
 	
 	public CustomerDto ConvertCustomerToDto(ApplicationUser activeCustomer)

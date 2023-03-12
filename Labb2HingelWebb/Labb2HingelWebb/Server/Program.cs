@@ -33,8 +33,8 @@ builder.Services.AddAuthentication()
 	.AddIdentityServerJwt();
 
 builder.Services.AddAuthorizationBuilder()
-	.AddPolicy("AdminAccess", policy =>
-		policy.RequireRole("admin"));
+	.AddPolicy("AdminAccess", policy => policy.RequireRole("admin"));
+
 
 
 builder.Services.AddControllersWithViews();
@@ -52,7 +52,7 @@ builder.Services.AddScoped<CustomerService>();
 
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
-//builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<RoleService>();
 
 var app = builder.Build();
 
@@ -76,8 +76,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication();
 app.UseIdentityServer();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
@@ -106,9 +106,9 @@ app.MapGet("/hello", async () =>
 
 		var nUser = await usrMngr.FindByEmailAsync("henrik.ingelsten@gmail.com");
 
-		//await usrMngr.CreateAsync(nUser, "Abcd123!");
-		//if (nUser is not null)
-		//	await usrMngr.AddToRoleAsync(nUser, role.Name);
+			//await usrMngr.CreateAsync(nUser, "Abcd123!");
+			//if (nUser is not null)
+				//await usrMngr.AddToRoleAsync(nUser, role.Name);
 
 	}
 });

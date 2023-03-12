@@ -16,8 +16,7 @@ public class ProductService
 		_productRepository = productRepository;
 		_customerService = customerService;
 	}
-	
-	
+
 	public async Task<ServiceResponse<IEnumerable<StoreProductDto>>> GetAllProducts()
 	{
 		var products = await _productRepository.GetAllItems();
@@ -43,11 +42,11 @@ public class ProductService
 		};
 	}
 
-	public async Task AddNewProduct(StoreProductDto newDtoProduct) //TODO: Returnera ett repspons
+	public async Task<ServiceResponse<string>> AddNewProduct(StoreProductDto newDtoProduct)
 	{
 		var products = await _productRepository.GetAllItems();
 
-		if (products.Any(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower()))) //TODO: Detta skulle kanske kunna bytas mot att köras i existerande funktion redan i repositoriet?
+		if (products.Any(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower())))
 		{
 			var toUpdate = await _productRepository.GetItemByName(newDtoProduct.ProductName);
 
@@ -59,24 +58,30 @@ public class ProductService
 
 			await _productRepository.UpdateItem(toUpdate);
 
-			//TODO: Returnera svar härifrån om ok:
-		}
-
-		else
-		{
-			var newProduct = new StoreProduct()
+			return new ServiceResponse<string>()
 			{
-				ProductName = newDtoProduct.ProductName,
-				ProductDescription = newDtoProduct.ProductDescription,
-				ProductType = newDtoProduct.ProductType,
-				IsActive = true,
-				Price = newDtoProduct.Price
+				Data = string.Empty,
+				Message = "Product Updated",
+				Success = true
 			};
-
-			await _productRepository.AddItemAsync(newProduct);
-
-			//TODO: Returnera svar härifrån om ok:
 		}
+
+		var newProduct = new StoreProduct()
+		{
+			ProductName = newDtoProduct.ProductName,
+			ProductDescription = newDtoProduct.ProductDescription,
+			ProductType = newDtoProduct.ProductType,
+			IsActive = true,
+			Price = newDtoProduct.Price
+		};
+		await _productRepository.AddItemAsync(newProduct);
+
+		return new ServiceResponse<string>()
+		{
+			Data = string.Empty,
+			Message = "Product Added",
+			Success = true
+		};
 	}
 
 	private StoreProductDto ConvertProductToDto(StoreProduct product)
@@ -91,8 +96,16 @@ public class ProductService
 		};
 	}
 
-	public async Task DeleteProduct(string productToDelete)
+	//TODO: Ska jag ta hand om mer alternativ om produkten inte hittas tex? Men ska vara väldigt låg risk.
+	public async Task<ServiceResponse<string>> DeleteProduct(string productToDelete)
 	{
 		await _productRepository.DeleteItem(productToDelete);
+
+		return new ServiceResponse<string>()
+		{
+			Message = $"{productToDelete} is deleted.",
+			Success = true,
+			Data = string.Empty
+		};
 	}
 }

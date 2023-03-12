@@ -9,10 +9,10 @@ public class Order
 	public string Id { get; set; }
 
 	[BsonElement]
-	public CustomerDto CustomerDto { get; set; } //Vill inte spara lösenordsdelarna i denna del.
+	public CustomerDto CustomerDto { get; set; }
 
 	[BsonElement]
-	public IEnumerable<StoreProductDto> ProductDtos { get; set; }
+	public IEnumerable<ProductOrderQuantityDto> ProductOrderQuantityDtos { get; set; }
 	
 	[BsonElement]
 	public DateTime OrderDate { get; set; }

@@ -1,4 +1,5 @@
-﻿using Labb2HingelWebb.Server.Services;
+﻿using Azure;
+using Labb2HingelWebb.Server.Services;
 using Labb2HingelWebb.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
@@ -9,39 +10,53 @@ public static class WebApplicationExtensions
 	public static WebApplication MapCustomerEndPoints(this WebApplication app)
 	{
 		app.MapGet("/findUserByName/{name}", async (CustomerService customerService, string name) =>
-			await customerService.FindUserByName(name));
+		{
+			var response = await customerService.FindUserByName(name);
 
-		app.MapGet("/findCustomers", async (CustomerService customerService) => 
-			await customerService.FindCustomers());
+			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+		});
 
-		app.MapPost("/updateUser", async (CustomerService customerService, CustomerDto updatedCustomerDto) => 
-			await customerService.UpdateUser(updatedCustomerDto));
+		app.MapGet("/findCustomers", async (CustomerService customerService) =>
+		{
+			var response = await customerService.FindCustomers();
+
+			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+		});
+
+		app.MapPost("/updateUser", async (CustomerService customerService, CustomerDto updatedCustomerDto) =>
+		{
+			var response = await customerService.UpdateUser(updatedCustomerDto);
+
+			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+		});
 
 		return app;
 	}
 
 	public static WebApplication MapStoreEndPoints(this WebApplication app)
 	{
-		//TODO: snygga till det här:
-
 		app.MapPost("/addStoreProduct",
 			async (ProductService storeService, StoreProductDto newDtoProduct) =>
 			{
-				await storeService.AddNewProduct(newDtoProduct);
+				var response = await storeService.AddNewProduct(newDtoProduct);
+
+				return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 			});
 
 		app.MapGet("/allProducts", async (ProductService storeService) =>
 		{
 			var response = await storeService.GetAllProducts();
 
-			//return response.Data;
-			return response.Success ? response.Data : null;
-			//Resukt.OK(Response) : Result.BadRequest(Response)
-			//TODO: ska jag skicka hela responset eller enbart datan?
-		}).RequireAuthorization("AdminAccess");
+			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+
+		}); //.RequireAuthorization("AdminAccess");
 
 		app.MapDelete("/deleteProduct/{productName}", async (ProductService storeService, string productName) =>
-			await storeService.DeleteProduct(productName));
+		{
+			var response = await storeService.DeleteProduct(productName);
+
+			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+		});
 
 		return app;
 	}
@@ -50,12 +65,16 @@ public static class WebApplicationExtensions
 	{
 		app.MapPost("/placeOrder", async (OrderService orderService, OrderDto newOrder) =>
 		{
-			await orderService.PlaceOrder(newOrder);
+			var response = await orderService.PlaceOrder(newOrder);
+
+			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 		});
 
 		app.MapGet("/getCustomerOrders/{email}", async (OrderService orderService, string email) =>
 		{
-			return await orderService.GetOrders(email);
+			var response = await orderService.GetOrders(email);
+
+			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 		});
 		
 		return app;

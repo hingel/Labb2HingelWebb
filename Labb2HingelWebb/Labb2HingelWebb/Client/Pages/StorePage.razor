@@ -1,6 +1,7 @@
 ﻿@page "/StorePage"
 @using Labb2HingelWebb.Shared.DTOs
 @using Microsoft.AspNetCore.Authorization
+@using Labb2HingelWebb.Shared
 
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -13,6 +14,7 @@
 
 <div class="container">
 	<button class="btn btn-primary" @onclick="CheckOut">Check Out</button>
+	<textarea>Response Message: @ResponseMessage</textarea>
 </div>
 
 <ul class="container">
@@ -33,10 +35,10 @@
 </ul>
 
 <ul class="container">
-	<Virtualize Items="ShoppingCartDto" Context="productDto">
+	<Virtualize Items="ShoppingCartDto" Context="shopListItem">
 		<li class="list-group">
 			<div>
-				@productDto.ProductName @productDto.Price
+				@shopListItem">.StoreProductDto.ProductName @shopListItem.Quantity @shopListItem.SumPrice
 			</div>
 		</li>
 	</Virtualize>
@@ -46,9 +48,10 @@
 @code {
 	//TODO: När den laddar upp ska den kolla session storage / cookie om det redan finns en shoppingcart.
 
-	public List<StoreProductDto> ShoppingCartDto { get; set; } = new();
+	public List<ProductOrderQuantityDto> ShoppingCartDto { get; set; } = new();
 	public List<StoreProductDto> ListStoreProductDtos { get; set; } = new();
 	public string CustomerName { get; set; } = string.Empty;
+	public string ResponseMessage { get; set; } = string.Empty; //TODO: detta uppdateras inte av sig själv.
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -57,13 +60,13 @@
 		CustomerName = userInfo.User.Identity.Name;
 		
 		//Här hämta alla produkter från databasen:
-		var response = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "allProducts");
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<StoreProductDto[]>>(HttpClient.BaseAddress + "allProducts");
 
 		//TODo: kolla att det inte är inaktiva produkter som listas.
 
-		if (response != null)
+		if (response.Success)
 		{
-			ListStoreProductDtos.AddRange(response);
+			ListStoreProductDtos.AddRange(response.Data.Where(p => p.IsActive));
 		}
 
 		await base.OnInitializedAsync();
@@ -71,39 +74,73 @@
 
 	public void AddProductToCart(StoreProductDto productDto)
 	{
-		//Lägg till check att öka antal istället.
-		//Kanske ska lägga detta i en ytterligare class med antal.
-		
-		ShoppingCartDto.Add(productDto);
+		var productToUpdate = ShoppingCartDto.FirstOrDefault(lsp => lsp.StoreProductDto.ProductName == productDto.ProductName);
+
+		if (productToUpdate is null)
+		{
+			var productToAdd = new ProductOrderQuantityDto()
+				{
+					StoreProductDto = productDto,
+					Quantity = 1
+				};
+
+			ShoppingCartDto.Add(productToAdd);
+		}
+
+		else
+		{
+			productToUpdate.Quantity += 1;
+		}
+
+		ResponseMessage = "Product Added";
 	}
 
-	//Metod för att ta bort produkter ur listan:
 	public void RemoveProductFromCart(StoreProductDto productDto)
 	{
-	//Lägg till check att minska antal istället.
-	//Kanske ska lägga detta i en ytterligare class med antal.
+		var productToUpdate = ShoppingCartDto.FirstOrDefault(lsp => lsp.StoreProductDto.ProductName == productDto.ProductName);
 
-		ShoppingCartDto.Remove(productDto);
+		if (productToUpdate is null)
+		{
+			ShoppingCartDto.Add(new ProductOrderQuantityDto()
+			{
+				Quantity = 1,
+				StoreProductDto = productDto
+			});
+		}
+
+		else
+		{
+			productToUpdate.Quantity -= 1;
+		}
+
+		ResponseMessage = "Product Removed";
 	}
 
 	public async Task CheckOut()
 	{
-		//säga vem som är kunden:
-		//Lägga detta i nytt objekt
+		//TODO: Niklas pratade nått om att det går att kolla vem som skickat responset i backend? Är det möjligt?
 
 		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 		var user = userInfo.User.Identity.Name;
-
-
+		
 		var newOrder = new OrderDto()
 		{
-			ProductDtos = ShoppingCartDto,
+			ProductOrderQuantityDtos = ShoppingCartDto,
 			UserName = user
 		};
 
-		//skicka själva kundobjektet:
-		await HttpClient.PostAsJsonAsync<OrderDto>(HttpClient.BaseAddress + "placeOrder", newOrder);
+		var response = await HttpClient.PostAsJsonAsync(HttpClient.BaseAddress + "placeOrder", newOrder);
+		var result = await response.Content.ReadFromJsonAsync<ServiceResponse<string>>();
 
-		ShoppingCartDto = new();
+		if (result.Success)
+		{
+			ShoppingCartDto = new();
+			ResponseMessage = result.Message;
+		}
+
+		else
+		{
+			ResponseMessage = result.Message;
+		}
 	}
 }

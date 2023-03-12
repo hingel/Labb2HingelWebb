@@ -1,6 +1,7 @@
 ﻿@page "/Customers"
 @using Microsoft.AspNetCore.Authorization
 @using Labb2HingelWebb.Shared.DTOs
+@using Labb2HingelWebb.Shared
 
 @inject HttpClient HttpClient
 
@@ -43,10 +44,10 @@
 @*<textarea>@ActiveOrder.Email @ActiveOrder.Address</textarea>*@
 
 <div class="container">
-	<Virtualize Items="ActiveListProducts" Context="productDto">
+	<Virtualize Items="ActiveListProducts" Context="listItem">
 		<li class="list-group">
 			<div>
-				@productDto.ProductName @productDto.Price
+				@listItem.StoreProductDto.ProductName @listItem.Quantity 
 			</div>
 		</li>
 	</Virtualize>
@@ -60,20 +61,21 @@
 	public string EmailSearch { get; set; } = "";
 	public List<OrderDto> CustomerOrders { get; set; } = new();
 	public OrderDto ActiveOrder { get; set; } = new();
-	public List<StoreProductDto> ActiveListProducts { get; set; } = new();
-
-
+	public List<ProductOrderQuantityDto> ActiveListProducts { get; set; } = new();
+	public string ResponseMessage { get; set; } = "";
 
 	protected override async Task OnInitializedAsync()
 	{
-		var result = await HttpClient.GetFromJsonAsync<List<CustomerDto>>(HttpClient.BaseAddress + "findCustomers");
-		
-		if (result == null)
-			return;
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<CustomerDto>>>(HttpClient.BaseAddress + "findCustomers");
 
-		CustomerDtos = result;
-		
-		FilterResults();
+		if (response.Success)
+		{
+			CustomerDtos = response.Data.ToList();
+			ResponseMessage = response.Message;
+			FilterResults();
+		}
+		else
+			ResponseMessage = response.Message;
 
 		await base.OnInitializedAsync();
 	}
@@ -83,10 +85,15 @@
 		ActiveCustomer = customerDto;
 		ActiveListProducts.Clear();
 
-		var result = await HttpClient.GetFromJsonAsync<IEnumerable<OrderDto>>(HttpClient.BaseAddress + $"getCustomerOrders/{customerDto.Email}");
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<OrderDto>>>(HttpClient.BaseAddress + $"getCustomerOrders/{customerDto.Email}");
 
-		CustomerOrders = result.ToList();
-
+		if (response.Success)
+		{
+			ResponseMessage = response.Message;
+			CustomerOrders = response.Data.ToList();
+		}
+		else
+			ResponseMessage = response.Message;
 	}
 
 	private void FilterResults()
@@ -102,9 +109,9 @@
 		}
 	}
 
-	private async Task SelectedOrder(OrderDto orderDto)
+	private void SelectedOrder(OrderDto orderDto)
 	{
 		ActiveOrder = orderDto;
-		ActiveListProducts = ActiveOrder.ProductDtos.ToList();
+		ActiveListProducts = ActiveOrder.ProductOrderQuantityDtos.ToList();
 	}
 }

@@ -1,4 +1,4 @@
-﻿using Labb2HingelWebb.Server.Models;
+﻿using Labb2HingelWebb.Shared;
 using Labb2HingelWebb.Shared.DTOs;
 using StoreDataAccess.Models;
 using StoreDataAccess.Repositories;
@@ -16,41 +16,71 @@ public class OrderService
 		_customerService = customerService;
 	}
 
-	public async Task PlaceOrder(OrderDto newOrderDto)
+	public async Task<ServiceResponse<string>> PlaceOrder(OrderDto newOrderDto)
 	{
-		if (newOrderDto.ProductDtos != null)
+		if (newOrderDto.ProductOrderQuantityDtos != null)
 		{
-			//Calculate sum:
+			//TODO: Calculate sum:
 			//Withdraw amount from account:
-			//If ok:
+			//Niklas pratade om att man kan hitta användaren på något sätt utan att bifoga email tex om jag minns rätt?
 
-			//Hitta namnet på användaren utifrån den info som skickas
+			var response = await _customerService.FindUserByName(newOrderDto.UserName);
+			//Om betalning ok.
 
-
-			var newOrder = new Order()
+			if (response.Success)
 			{
-				CustomerDto = _customerService.ConvertCustomerToDto(await _customerService.FindUserByName(newOrderDto.UserName)),
-				ProductDtos = newOrderDto.ProductDtos,
-				OrderDate = DateTime.UtcNow
-			};
+				var newOrder = new Order()
+				{
+					CustomerDto = response.Data,
+					ProductOrderQuantityDtos = newOrderDto.ProductOrderQuantityDtos,
+					OrderDate = DateTime.UtcNow
+				};
 
-			//TODO: Lägg till svarskod.
-			await _orderStoreRepository.AddItemAsync(newOrder);
+				await _orderStoreRepository.AddItemAsync(newOrder);
+
+				return new ServiceResponse<string>()
+				{
+					Message = "Order sent. Thank you!",
+					Success = true
+				};
+			}
 		}
+
+		return new ServiceResponse<string>()
+		{
+			Message = "Order not sent.",
+			Success = false
+		};
 	}
 
-	public async Task<IEnumerable<OrderDto>> GetOrders(string email)
+	public async Task<ServiceResponse<IEnumerable<OrderDto>>> GetOrders(string email)
 	{
 		var orders = await _orderStoreRepository.GetByEmail(email);
 
-		return orders.Select(o => new OrderDto()
+		if (orders != null && orders.Count() > 0) //VIlken check behövs??
 		{
-			OrderDate = o.OrderDate,
-			Id = o.Id,
-			ProductDtos = o.ProductDtos,
-			Email = o.CustomerDto.Email,
-			UserName = o.CustomerDto.UserName,
-			Address = o.CustomerDto.Address
-		});
+			var response = new ServiceResponse<IEnumerable<OrderDto>>()
+			{
+				Data = orders.Select(o => new OrderDto()
+				{
+					OrderDate = o.OrderDate,
+					Id = o.Id,
+					ProductOrderQuantityDtos = o.ProductOrderQuantityDtos,
+					Email = o.CustomerDto.Email,
+					UserName = o.CustomerDto.UserName,
+					Address = o.CustomerDto.Address
+				}),
+				Success = true,
+				Message = "Order from ${email}"
+			};
+
+			return response;
+		}
+
+		return new ServiceResponse<IEnumerable<OrderDto>>()
+		{
+			Success = false,
+			Message = "No orders found"
+		};
 	}
 }

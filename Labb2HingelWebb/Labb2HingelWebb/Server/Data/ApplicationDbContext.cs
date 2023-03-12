@@ -13,5 +13,6 @@ namespace Labb2HingelWebb.Server.Data
 			IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
 		{
 		}
+
 	}
 }

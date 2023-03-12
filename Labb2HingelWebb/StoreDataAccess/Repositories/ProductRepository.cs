@@ -24,13 +24,10 @@ public class ProductRepository : IProductRepository<StoreProduct>
 		//Detta måsta fixas.
 		if (await CheckProductExists(newProduct))
 		{
-			//TODO: Retunera svarsmeddelande
 			return;
 		}
 		
 		await _storeProductCollection.InsertOneAsync(newProduct);
-
-		//ToDO: Fixa svarsmeddelande
 	}
 
 	//Är denna check tillförlitlig?
@@ -39,7 +36,7 @@ public class ProductRepository : IProductRepository<StoreProduct>
 		var filter = Builders<StoreProduct>.Filter.Eq("ProductName", newProduct.ProductName);
 		var exists = await _storeProductCollection.FindAsync(filter);
 		
-		return exists.ToList().Count > 0; //exists is null && exists.ToList().Count > 0;
+		return exists.ToList().Count > 0;
 	}
 	
 	public async Task<StoreProduct> GetItemByName(string productName)

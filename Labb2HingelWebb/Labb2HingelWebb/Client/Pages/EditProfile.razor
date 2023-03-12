@@ -1,6 +1,7 @@
 ﻿@page "/EditProfile"
 @using Labb2HingelWebb.Shared.DTOs
 @using Microsoft.AspNetCore.Authorization
+@using Labb2HingelWebb.Shared
 
 @inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -11,7 +12,7 @@
 
 <div class="container">
 	<EditForm Model="ActiveCustomerDto" OnSubmit="UpdateUser">
-	<div class="form-control">
+		<div class="form-control">
 			<label>Name</label>
 			<InputText @bind-Value="ActiveCustomerDto.UserName"></InputText>
 			<label>Address</label>
@@ -20,15 +21,19 @@
 			<InputText @bind-Value="ActiveCustomerDto.Phone"></InputText>
 		</div>
 		<button class="btn btn-primary">Send</button>
-	
 	</EditForm>
+	
+	<div>
+		<p>Response Message: @ResponseMessage</p>
+	</div>
 </div>
 
 
 
 
 @code {
-	CustomerDto? ActiveCustomerDto { get; set; } = new();
+	public CustomerDto ActiveCustomerDto { get; set; } = new();
+	public string ResponseMessage { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -36,20 +41,35 @@
 
 		var userName = userInfo.User.Identity.Name;
 
-		var response = await HttpClient.GetFromJsonAsync<CustomerDto>(HttpClient.BaseAddress + $"findUserByName/{userName}");
-
-		if (response != null)
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<CustomerDto>>(HttpClient.BaseAddress + $"findUserByName/{userName}");
+		
+		if (response.Success)
 		{
-			ActiveCustomerDto = response;
+			ActiveCustomerDto = response.Data;
+			ResponseMessage = response.Message;
 		}
-
+		else
+		{
+			ResponseMessage = response.Message;
+		}
+		
 		await base.OnInitializedAsync();
 	}
 
 
 	private async Task UpdateUser()
 	{
-		var response = await HttpClient.PostAsJsonAsync<CustomerDto>(HttpClient.BaseAddress + "updateUser", ActiveCustomerDto);
-	}
+		var response = await HttpClient.PostAsJsonAsync(HttpClient.BaseAddress + "updateUser", ActiveCustomerDto);
+		var result = await response.Content.ReadFromJsonAsync<ServiceResponse<CustomerDto>>();
+		if (result.Success)
+		{
+			ActiveCustomerDto = result.Data;
+			ResponseMessage = result.Message;
+		}
 
+		else
+		{
+			ResponseMessage = result.Message;
+		}
+	}
 }

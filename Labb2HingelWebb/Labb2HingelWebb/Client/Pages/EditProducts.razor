@@ -1,6 +1,7 @@
 ﻿@page "/EditProducts"
 @using Labb2HingelWebb.Shared.DTOs
 @using Microsoft.AspNetCore.Authorization
+@using Labb2HingelWebb.Shared
 @inject HttpClient HttpClient
 @attribute [Authorize]
 
@@ -79,13 +80,18 @@
 
 	private async Task GetProducts()
 	{
-		var result = await HttpClient.GetFromJsonAsync<StoreProductDto[]>(HttpClient.BaseAddress + "allProducts");
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<StoreProductDto[]>>(HttpClient.BaseAddress + "allProducts");
 
-		if (result == null)
-			return;
-
-		StoreProductDtos = result.ToList();
-		FilterResults();
+		if (response.Success)
+		{
+			StoreProductDtos = response.Data.ToList();
+			FilterResults();
+			ResponseMessage = response.Message;
+		}
+		else
+		{
+			ResponseMessage = response.Message;
+		}
 	}
 
 	private void FilterResults()
@@ -107,28 +113,34 @@
 	private void SelectProduct(StoreProductDto selectedProductDto)
 	{
 		ActiveProductDto = selectedProductDto;
-
-		//Kanske behöver uppdatera fälten p.n.s.
 	}
 
 	//När produkten ska uppdateras eller läggas till ny.
 	private async Task UpdateProduct()
 	{
-		await HttpClient.PostAsJsonAsync<StoreProductDto>(HttpClient.BaseAddress + "addStoreProduct", ActiveProductDto);
+		var response = await HttpClient.PostAsJsonAsync(HttpClient.BaseAddress + "addStoreProduct", ActiveProductDto);
+		var result = await response.Content.ReadFromJsonAsync<ServiceResponse<string>>();
 
-		await GetProducts();
+		if (result.Success)
+		{
+			ResponseMessage = result.Message;
+			await GetProducts();
+		}
 	}
 
-	//TODO: Metod för att ta bort en produkt ur stortimentet.
 	private async Task DeleteProduct()
 	{
 		if(ActiveProductDto == null)
 			return;
 
-		var httpResponse = await HttpClient.DeleteAsync(HttpClient.BaseAddress + $"deleteProduct/{ActiveProductDto.ProductName}");
+		var response = await HttpClient.DeleteAsync(HttpClient.BaseAddress + $"deleteProduct/{ActiveProductDto.ProductName}");
+		var result = await response.Content.ReadFromJsonAsync<ServiceResponse<string>>();
 
-		ResponseMessage = httpResponse.ToString();
+		if (result.Success)
+		{
+			ResponseMessage = result.Message;
+			await GetProducts();
+		}
 
-		await GetProducts();
 	}
 }
