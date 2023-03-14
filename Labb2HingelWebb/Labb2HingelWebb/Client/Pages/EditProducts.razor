@@ -21,8 +21,8 @@
 			<InputText @bind-Value="ActiveProductDto.ProductName"></InputText>
 			<label>Description</label>
 			<InputText @bind-Value="ActiveProductDto.ProductDescription"></InputText>
-			@*<label>Type 1=Rock; 2=Stick; 3=Dirt; 4=None;s </label>
-			<InputNumber @bind-Value="ActiveProductDto.ProductType"></InputNumber>*@
+			<label>Type 1=Rock; 2=Stick; 3=Dirt; 4=None </label>
+			<InputNumber @bind-Value="CategoryNumber"></InputNumber>
 			<label>IsActive</label>
 			<InputCheckbox @bind-Value="ActiveProductDto.IsActive"></InputCheckbox>
 			<label>Price</label>
@@ -39,7 +39,8 @@
 		<InputText @bind-Value="SearchWord"></InputText>
 		<label>Enter number of returns</label>
 		<InputNumber @bind-Value="NoOfResults"></InputNumber>
-		<label>Enter category</label>
+		<label>Enter category 1=Rock; 2=Stick; 3=Dirt; 4=None</label>
+		<InputNumber @bind-Value="GenreSearch"></InputNumber>
 	</div>
 	<button class="btn btn-primary">search</button>
 	</EditForm>
@@ -60,16 +61,14 @@
 
 @code {
 
-	public StoreProductDto ActiveProductDto { get; set; } = new StoreProductDto();
+	public StoreProductDto ActiveProductDto { get; set; } = new ();
 	public List<StoreProductDto> StoreProductDtos { get; set; } = new();
 	public List<StoreProductDto> SearchResult { get; set; } = new();
 	public string SearchWord { get; set; } = "";
+	public int GenreSearch { get; set; } = 4;
 	public string ResponseMessage { get; set; } = "";
-
+	public int CategoryNumber { get; set; }
 	public int NoOfResults { get; set; } = 5;
-
-	//ToDO: Lägga till kategori sökning:
-	
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -100,24 +99,27 @@
 		{
 			SearchResult = StoreProductDtos.Where(p => p.ProductName.ToLower().Contains(SearchWord.ToLower())).Take(NoOfResults).ToList();
 		}
-
 		else
 		{
 			SearchResult = StoreProductDtos.Take(NoOfResults).ToList();
 		}
-
-		//ToDO: Lägga till Typsökning också.
+		
+		if(GenreSearch != 4)
+		{
+			SearchResult = SearchResult.Where(p => p.ProductType == (ProductCategory)GenreSearch).Take(NoOfResults).ToList();
+		}
 	}
 
-	//Den selekterade produkten i listan
 	private void SelectProduct(StoreProductDto selectedProductDto)
 	{
 		ActiveProductDto = selectedProductDto;
+		CategoryNumber = (int)selectedProductDto.ProductType;
 	}
 
-	//När produkten ska uppdateras eller läggas till ny.
 	private async Task UpdateProduct()
 	{
+		ActiveProductDto.ProductType = (ProductCategory)CategoryNumber;
+
 		var response = await HttpClient.PostAsJsonAsync(HttpClient.BaseAddress + "addStoreProduct", ActiveProductDto);
 		var result = await response.Content.ReadFromJsonAsync<ServiceResponse<string>>();
 

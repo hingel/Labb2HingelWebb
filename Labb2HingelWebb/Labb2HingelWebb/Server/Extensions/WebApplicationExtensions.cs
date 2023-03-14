@@ -49,7 +49,7 @@ public static class WebApplicationExtensions
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 
-		}); //.RequireAuthorization("AdminAccess");
+		}); //.RequireAuthorization("admin_access");
 
 		app.MapDelete("/deleteProduct/{productName}", async (ProductService storeService, string productName) =>
 		{

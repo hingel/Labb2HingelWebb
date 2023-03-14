@@ -32,8 +32,12 @@ builder.Services.AddAuthentication()
 	})
 	.AddIdentityServerJwt();
 
+builder.Services.AddAuthentication().AddJwtBearer();
+
 builder.Services.AddAuthorizationBuilder()
-	.AddPolicy("AdminAccess", policy => policy.RequireRole("admin"));
+	.AddPolicy("admin_access", policy => 
+	policy
+	.RequireRole("admin"));
 
 
 
@@ -114,7 +118,7 @@ app.MapGet("/hello", async () =>
 });
 
 
-app.MapGet( "/test", () => "hej"); //.RequireAuthorization("admin_greetings");
+app.MapGet( "/test", () => "hej").RequireAuthorization("admin_access");
 
 
 

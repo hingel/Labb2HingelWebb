@@ -22,7 +22,7 @@
 		<li class="list-group">
 			<div class="card list-group-item mb-2">
 				<div class="card-header bg-secondary bg-gradient text-light">
-					@productDto.ProductName @productDto.Price
+					@productDto.ProductName @productDto.Price @productDto.ProductType.ToString()
 				</div>
 				<div class="card-body">
 					@productDto.ProductDescription
@@ -58,11 +58,8 @@
 		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 		
 		CustomerName = userInfo.User.Identity.Name;
-		
-		//Här hämta alla produkter från databasen:
-		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<StoreProductDto[]>>(HttpClient.BaseAddress + "allProducts");
 
-		//TODo: kolla att det inte är inaktiva produkter som listas.
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<StoreProductDto[]>>(HttpClient.BaseAddress + "allProducts");
 
 		if (response.Success)
 		{
@@ -92,6 +89,8 @@
 			productToUpdate.Quantity += 1;
 		}
 
+
+
 		ResponseMessage = "Product Added";
 	}
 
@@ -99,26 +98,32 @@
 	{
 		var productToUpdate = ShoppingCartDto.FirstOrDefault(lsp => lsp.StoreProductDto.ProductName == productDto.ProductName);
 
-		if (productToUpdate is null)
+		if (productToUpdate is not null)
 		{
-			ShoppingCartDto.Add(new ProductOrderQuantityDto()
+			if (productToUpdate.Quantity > 1)
 			{
-				Quantity = 1,
-				StoreProductDto = productDto
-			});
+				productToUpdate.Quantity -= 1;
+			}
+
+			else
+			{
+				ShoppingCartDto.Remove(productToUpdate);
+			}
+
+			ResponseMessage = "Product Removed";
 		}
 
-		else
-		{
-			productToUpdate.Quantity -= 1;
-		}
 
-		ResponseMessage = "Product Removed";
 	}
 
 	public async Task CheckOut()
 	{
 		//TODO: Niklas pratade nått om att det går att kolla vem som skickat responset i backend? Är det möjligt?
+
+		if (ShoppingCartDto.Count == 0)
+		{
+			return;
+		}
 
 		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 		var user = userInfo.User.Identity.Name;

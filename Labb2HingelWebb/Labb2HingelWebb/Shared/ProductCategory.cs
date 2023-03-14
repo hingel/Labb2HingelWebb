@@ -2,5 +2,5 @@
 
 public enum ProductCategory
 {
-	Rock, Stick, Dirt, None
+	Rock = 1, Stick, Dirt, None
 }
