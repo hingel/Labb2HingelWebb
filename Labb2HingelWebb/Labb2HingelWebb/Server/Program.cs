@@ -35,9 +35,10 @@ builder.Services.AddAuthentication()
 builder.Services.AddAuthentication().AddJwtBearer();
 
 builder.Services.AddAuthorizationBuilder()
-	.AddPolicy("admin_access", policy => 
+	.AddPolicy("admin_access", policy =>
 	policy
-	.RequireRole("admin"));
+	.RequireRole("admin")
+	.RequireScope());
 
 
 
@@ -119,7 +120,5 @@ app.MapGet("/hello", async () =>
 
 
 app.MapGet( "/test", () => "hej").RequireAuthorization("admin_access");
-
-
 
 app.Run();

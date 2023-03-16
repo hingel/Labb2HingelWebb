@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Labb2HingelWebb.Client;
+using Labb2HingelWebb.Server.Data;
 using Labb2HingelWebb.Server.Models;
 using Labb2HingelWebb.Shared;
 using Labb2HingelWebb.Shared.DTOs;
@@ -13,13 +14,43 @@ namespace Labb2HingelWebb.Server.Services;
 public class CustomerService
 {
 	private UserManager<ApplicationUser> _userManager;
+	private IHttpContextAccessor _contextAccessor;
+	private readonly ApplicationDbContext _appDbcontext;
 
 
-	public CustomerService(UserManager<ApplicationUser> userManager)
+	public CustomerService(UserManager<ApplicationUser> userManager, IHttpContextAccessor accessor, ApplicationDbContext appDbContext )
 	{
 		_userManager = userManager;
+		_contextAccessor = accessor;
+		_appDbcontext = appDbContext;
 	}
 
+	public async Task<ServiceResponse<string>> CheckRole()
+	{
+		var user =  _contextAccessor.HttpContext.User;
+
+		var check = user.IsInRole("admin");
+
+		//var checkRole =
+		//	await _appDbcontext.UserRoles.AnyAsync(
+		//		user.IsInRole(_appDbcontext.Roles.FirstOrDefault(r => r.Name == "admin").Name));
+
+		if (check)
+		{
+			return new ServiceResponse<string>()
+			{
+				Data = "hittad",
+				Message = "admin användare",
+				Success = true
+			};
+		}
+
+		return new ServiceResponse<string>()
+		{
+
+		}
+
+	}
 
 	//TODO: För test i nuläget. Används inte ta bort
 	public async Task<IdentityResult> GetUserByEmail(string email)
