@@ -36,9 +36,9 @@ builder.Services.AddAuthentication().AddJwtBearer();
 
 builder.Services.AddAuthorizationBuilder()
 	.AddPolicy("admin_access", policy =>
-	policy
-	.RequireRole("admin")
-	.RequireScope());
+		policy
+			.RequireRole("admin"));
+	//.RequireScope());
 
 
 

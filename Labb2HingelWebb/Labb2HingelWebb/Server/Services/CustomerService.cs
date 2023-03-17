@@ -25,6 +25,8 @@ public class CustomerService
 		_appDbcontext = appDbContext;
 	}
 
+
+	//TODO: försök få till en admin check här:
 	public async Task<ServiceResponse<string>> CheckRole()
 	{
 		var user =  _contextAccessor.HttpContext.User;
@@ -47,8 +49,9 @@ public class CustomerService
 
 		return new ServiceResponse<string>()
 		{
-
-		}
+			Message = "not found",
+			Success = false
+		};
 
 	}
 
