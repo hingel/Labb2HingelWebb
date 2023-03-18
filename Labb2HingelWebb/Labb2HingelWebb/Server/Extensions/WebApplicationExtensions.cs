@@ -11,8 +11,6 @@ public static class WebApplicationExtensions
 	{
 		app.MapGet("/findUserByName/{name}", async (CustomerService customerService, string name) =>
 		{
-			
-			
 			var response = await customerService.FindUserByName(name);
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
@@ -81,7 +79,7 @@ public static class WebApplicationExtensions
 		{
 			var response = await orderService.GetOrders(email);
 
-			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+			return response.Success ? Results.Ok(response) : Results.Ok(response); //TODO: Får inte tillbaks svar om inte OK resultat.
 		});
 		
 		return app;

@@ -104,9 +104,7 @@ public class CustomerService
 			Success = false
 		};
 	}
-
-	//TODO: Det ska generellt returneras CustomerDTOs härifrån till användaren.
-
+	
 	public async Task<ServiceResponse<CustomerDto>> UpdateUser(CustomerDto updatedCustomerDto)
 	{
 		//TODO: Fråga till Niklas, ska detta läggas i en trycatch för att inte få exception??
@@ -116,7 +114,7 @@ public class CustomerService
 		userToUpdate.PhoneNumber = updatedCustomerDto.Phone;
 		userToUpdate.UserName = updatedCustomerDto.UserName;
 
-		var response = await _userManager.UpdateAsync(userToUpdate);
+		var response = await _userManager.UpdateAsync(userToUpdate); //TODO: Använda emailadressen istället.Eller det går inte heller?
 
 		if (response.Succeeded)
 		{

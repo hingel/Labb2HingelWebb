@@ -28,7 +28,7 @@ public class OrderRepository : IOrderRepository<Order>
 
 	public async Task<IEnumerable<Order>> GetByEmail(string email)
 	{
-		//var filter = Builders<Order.CusteomerDto>.Filter.Eq("CustomerDto", email); //TODO: ta hand om detta sorterar ut alla?
+		//var filter = Builders<Order.CusteomerDto>.Filter.Eq("CustomerDto", email); //TODO: ta hand om detta sorterar ut alla nu
 		var result = await _storeOrderCollection.FindAsync(_ => true);
 
 		return result.ToList().Where(o => o.CustomerDto.Email.ToLower() == email.ToLower());

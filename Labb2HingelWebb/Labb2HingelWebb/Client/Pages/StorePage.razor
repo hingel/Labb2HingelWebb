@@ -8,144 +8,57 @@
 
 @attribute [Authorize]
 
-<h3>StorePage</h3>
-
+<h3>Shopping Page</h3>
 <h2>Welcome @CustomerName</h2>
 
 <div class="container">
-	<button class="btn btn-primary" @onclick="CheckOut">Check Out</button>
-	<textarea>Response Message: @ResponseMessage</textarea>
+	<div class="row">
+		<div class="col">
+			<button class="btn btn-primary" @onclick="CheckOut">Check Out</button>
+		</div>
+		<div class="col">
+			<button class="btn btn-primary" @onclick="() => { _showHide = !_showHide; _show = !_showHide;}">Show/Hide Cart</button>
+			<p>Sum shopping cart: @_shoppingCartSum</p>
+		</div>
+	</div>
 </div>
 
-<ul class="container">
+<ul class="container" hidden="@_showHide">
 	<Virtualize Items="ListStoreProductDtos" Context="productDto">
 		<li class="list-group">
 			<div class="card list-group-item mb-2">
 				<div class="card-header bg-secondary bg-gradient text-light">
-					@productDto.ProductName @productDto.Price @productDto.ProductType.ToString()
+					@productDto.ProductName , Price: @productDto.Price €.
 				</div>
 				<div class="card-body">
 					@productDto.ProductDescription
 					<button class="btn btn-primary" @onclick="() => AddProductToCart(productDto)">+</button>
 					<button class="btn btn-primary" @onclick="() => RemoveProductFromCart(productDto)">-</button>
 				</div>
+				<div class="card-footer">Category: @productDto.ProductType.ToString()</div>
 			</div>
 		</li>
 	</Virtualize>
 </ul>
 
-<ul class="container">
-	<Virtualize Items="ShoppingCartDto" Context="shopListItem">
-		<li class="list-group">
-			<div>
-				@shopListItem.StoreProductDto.ProductName @shopListItem.Quantity @shopListItem.SumPrice
-			</div>
-		</li>
-	</Virtualize>
-</ul>
+<p>Response Message: @_responseMessage</p>
+
+<div>
+	<ul class="container" hidden="@_show">
+		<Virtualize Items="ShoppingCartDto" Context="shopListItem">
+			<li class="list-group">
+				<div class="card list-group-item mb-1">
+					<div class="card-header">
+						@shopListItem.StoreProductDto.ProductName
+					</div>
+					<div class="card-body">
+						Quantity: @shopListItem.Quantity , Total sum: @shopListItem.SumPrice €.
+					</div>
+				</div>
+			</li>
+		</Virtualize>
+	</ul>
+</div>
 
 
-@code {
-	//TODO: När den laddar upp ska den kolla session storage / cookie om det redan finns en shoppingcart.
-
-	public List<ProductOrderQuantityDto> ShoppingCartDto { get; set; } = new();
-	public List<StoreProductDto> ListStoreProductDtos { get; set; } = new();
-	public string CustomerName { get; set; } = string.Empty;
-	public string ResponseMessage { get; set; } = string.Empty; //TODO: detta uppdateras inte av sig själv.
-
-	protected override async Task OnInitializedAsync()
-	{
-		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-		
-		CustomerName = userInfo.User.Identity.Name;
-
-		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<StoreProductDto[]>>(HttpClient.BaseAddress + "allProducts");
-
-		if (response.Success)
-		{
-			ListStoreProductDtos.AddRange(response.Data.Where(p => p.IsActive));
-		}
-
-		await base.OnInitializedAsync();
-	}
-
-	public void AddProductToCart(StoreProductDto productDto)
-	{
-		var productToUpdate = ShoppingCartDto.FirstOrDefault(lsp => lsp.StoreProductDto.ProductName == productDto.ProductName);
-
-		if (productToUpdate is null)
-		{
-			var productToAdd = new ProductOrderQuantityDto()
-				{
-					StoreProductDto = productDto,
-					Quantity = 1
-				};
-
-			ShoppingCartDto.Add(productToAdd);
-		}
-
-		else
-		{
-			productToUpdate.Quantity += 1;
-		}
-
-
-
-		ResponseMessage = "Product Added";
-	}
-
-	public void RemoveProductFromCart(StoreProductDto productDto)
-	{
-		var productToUpdate = ShoppingCartDto.FirstOrDefault(lsp => lsp.StoreProductDto.ProductName == productDto.ProductName);
-
-		if (productToUpdate is not null)
-		{
-			if (productToUpdate.Quantity > 1)
-			{
-				productToUpdate.Quantity -= 1;
-			}
-
-			else
-			{
-				ShoppingCartDto.Remove(productToUpdate);
-			}
-
-			ResponseMessage = "Product Removed";
-		}
-
-
-	}
-
-	public async Task CheckOut()
-	{
-		//TODO: Niklas pratade nått om att det går att kolla vem som skickat responset i backend? Är det möjligt?
-
-		if (ShoppingCartDto.Count == 0)
-		{
-			return;
-		}
-
-		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-		var user = userInfo.User.Identity.Name;
-		
-		var newOrder = new OrderDto()
-		{
-			ProductOrderQuantityDtos = ShoppingCartDto,
-			UserName = user
-		};
-
-		var response = await HttpClient.PostAsJsonAsync(HttpClient.BaseAddress + "placeOrder", newOrder);
-		var result = await response.Content.ReadFromJsonAsync<ServiceResponse<string>>();
-
-		if (result.Success)
-		{
-			ShoppingCartDto = new();
-			ResponseMessage = result.Message;
-		}
-
-		else
-		{
-			ResponseMessage = result.Message;
-		}
-	}
-}
+@code { }

@@ -7,142 +7,97 @@
 
 <h3>EditProducts</h3>
 
-@*<button class="btn btn-primary">NewProduct</button>*@
+
+<div class="container row">
+	<div class="container col-md-6">
+		<EditForm Model="SearchResult" OnSubmit="FilterResults">
+			<div class="form-control">
+				<div class="row m-1">
+					<label>Enter search word</label>
+					<InputText @bind-Value="SearchWord"></InputText>
+				</div>
+				<div class="row m-1">
+					<label>Enter number of returns</label>
+					<InputNumber @bind-Value="NoOfResults"></InputNumber>
+				</div>
+				<div class="row m-1">
+					<label>Enter category 1=Rock; 2=Stick; 3=Dirt; 4=None</label>
+					<InputNumber @bind-Value="GenreSearch"></InputNumber>
+				</div>
+			</div>
+			<button class="btn btn-primary mt-2">Search</button>
+		</EditForm>
+	</div>
+	<div class="col-md-6"></div>
+</div>
+
+<br/>
+
+<div class="container row">
+	<div class="col-md-6">
+		<h4>Products</h4>
+		<div class="form-control">
+			<p>Select product, @StoreProductDtos.Count products found.</p>
+			<div class="list-group rounded-2">
+				<Virtualize Items="SearchResult" Context="productDto">
+					<li class="list-group-item list-group-item-action list-group-item-secondary">
+						<div @onclick="() => SelectProduct(productDto)">
+							@productDto.ProductName
+						</div>
+					</li>
+				</Virtualize>
+			</div>
+		</div>
+		@*<button class="btn btn-primary">NewProduct</button>*@
+		<button class="btn btn-primary mt-2" @onclick="DeleteProduct">Delete Selected Product</button>
+	</div>
+	<div class="col-md-6">
+		<h4>Data</h4>
+		<EditForm Model="ActiveProductDto" OnSubmit="UpdateProduct">
+			<div class="form-control">
+				<p>Enter a new name to create new product.</p>
+				<div class="row m-1">
+					<div>
+						<label>Name</label>
+						<InputText @bind-Value="ActiveProductDto.ProductName"></InputText>
+					</div>
+				</div>
+				<div class="row m-1">
+					<div>
+						<label>Description</label>
+						<InputText @bind-Value="ActiveProductDto.ProductDescription"></InputText>
+					</div>
+				</div>
+				<div class="row m-1">
+					<div>
+						<label>Category: 1=Rock. 2=Stick. 3=Dirt. 4=None.</label>
+						<InputNumber @bind-Value="CategoryNumber"></InputNumber>
+					</div>
+				</div>
+				<div class="row m-1">
+					<div>
+						<label class="me-3">IsActive</label>
+						<InputCheckbox @bind-Value="ActiveProductDto.IsActive"></InputCheckbox>
+					</div>
+				</div>
+				<div class="row m-1">
+					<div>
+						<label>Price</label>
+						<InputNumber @bind-Value="ActiveProductDto.Price"></InputNumber>
+					</div>
+				</div>
+				<button class="btn btn-primary p-2 mt-2">Update/Add Product</button>
+			</div>
+		</EditForm>
+	</div>
+</div>
+
+<br/>
 <div>
-	<button class="btn btn-primary" @onclick="DeleteProduct">Delete Selected Product</button>
 	<p>@ResponseMessage</p>
 </div>
 
 
-<div class="container">
-	<EditForm Model="ActiveProductDto" OnSubmit="UpdateProduct">
-		<div class="form-control">
-			<label>Name</label>
-			<InputText @bind-Value="ActiveProductDto.ProductName"></InputText>
-			<label>Description</label>
-			<InputText @bind-Value="ActiveProductDto.ProductDescription"></InputText>
-			<label>Type 1=Rock; 2=Stick; 3=Dirt; 4=None </label>
-			<InputNumber @bind-Value="CategoryNumber"></InputNumber>
-			<label>IsActive</label>
-			<InputCheckbox @bind-Value="ActiveProductDto.IsActive"></InputCheckbox>
-			<label>Price</label>
-			<InputNumber @bind-Value="ActiveProductDto.Price"></InputNumber>
-		</div>
-		<button class="btn btn-primary">Send</button>
-	</EditForm>
-</div>
-
-<div class="container">
-	<EditForm Model="SearchResult" OnSubmit="FilterResults">
-	<div class="form-control">
-		<label>Enter search word</label>
-		<InputText @bind-Value="SearchWord"></InputText>
-		<label>Enter number of returns</label>
-		<InputNumber @bind-Value="NoOfResults"></InputNumber>
-		<label>Enter category 1=Rock; 2=Stick; 3=Dirt; 4=None</label>
-		<InputNumber @bind-Value="GenreSearch"></InputNumber>
-	</div>
-	<button class="btn btn-primary">search</button>
-	</EditForm>
-</div>
-<br/>
-
-<h3>Existing Products</h3>
-<ul class="container">
-	<Virtualize Items="SearchResult" Context="productDto">
-		<li class="list-group">
-			<div @onclick="() => SelectProduct(productDto)">
-				@productDto.ProductName @productDto.Price
-			</div>
-		</li>
-	</Virtualize>
-</ul>
 
 
-@code {
-
-	public StoreProductDto ActiveProductDto { get; set; } = new ();
-	public List<StoreProductDto> StoreProductDtos { get; set; } = new();
-	public List<StoreProductDto> SearchResult { get; set; } = new();
-	public string SearchWord { get; set; } = "";
-	public int GenreSearch { get; set; } = 4;
-	public string ResponseMessage { get; set; } = "";
-	public int CategoryNumber { get; set; }
-	public int NoOfResults { get; set; } = 5;
-
-	protected override async Task OnInitializedAsync()
-	{
-		await GetProducts();
-
-		await base.OnInitializedAsync();
-	}
-
-	private async Task GetProducts()
-	{
-		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<StoreProductDto[]>>(HttpClient.BaseAddress + "allProducts");
-
-		if (response.Success)
-		{
-			StoreProductDtos = response.Data.ToList();
-			FilterResults();
-			ResponseMessage = response.Message;
-		}
-		else
-		{
-			ResponseMessage = response.Message;
-		}
-	}
-
-	private void FilterResults()
-	{
-		if (SearchWord != "")
-		{
-			SearchResult = StoreProductDtos.Where(p => p.ProductName.ToLower().Contains(SearchWord.ToLower())).Take(NoOfResults).ToList();
-		}
-		else
-		{
-			SearchResult = StoreProductDtos.Take(NoOfResults).ToList();
-		}
-		
-		if(GenreSearch != 4)
-		{
-			SearchResult = SearchResult.Where(p => p.ProductType == (ProductCategory)GenreSearch).Take(NoOfResults).ToList();
-		}
-	}
-
-	private void SelectProduct(StoreProductDto selectedProductDto)
-	{
-		ActiveProductDto = selectedProductDto;
-		CategoryNumber = (int)selectedProductDto.ProductType;
-	}
-
-	private async Task UpdateProduct()
-	{
-		ActiveProductDto.ProductType = (ProductCategory)CategoryNumber;
-
-		var response = await HttpClient.PostAsJsonAsync(HttpClient.BaseAddress + "addStoreProduct", ActiveProductDto);
-		var result = await response.Content.ReadFromJsonAsync<ServiceResponse<string>>();
-
-		if (result.Success)
-		{
-			ResponseMessage = result.Message;
-			await GetProducts();
-		}
-	}
-
-	private async Task DeleteProduct()
-	{
-		if(ActiveProductDto == null)
-			return;
-
-		var response = await HttpClient.DeleteAsync(HttpClient.BaseAddress + $"deleteProduct/{ActiveProductDto.ProductName}");
-		var result = await response.Content.ReadFromJsonAsync<ServiceResponse<string>>();
-
-		if (result.Success)
-		{
-			ResponseMessage = result.Message;
-			await GetProducts();
-		}
-
-	}
-}
+@code { }

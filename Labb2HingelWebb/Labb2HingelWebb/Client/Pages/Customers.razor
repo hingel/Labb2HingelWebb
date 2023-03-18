@@ -7,7 +7,7 @@
 
 @attribute [Authorize]
 
-<h3>Customers</h3>
+<h3>Customer Orders</h3>
 
 <div class="container">
 	<EditForm Model="SearchResult" OnSubmit="FilterResults">
@@ -18,100 +18,51 @@
 		<button class="btn btn-primary">search</button>
 	</EditForm>
 </div>
+
 <br/>
 
-<ul class="container">
+<h4>Customers</h4>
+<div class="container">
 	<Virtualize Items="SearchResult" Context="customerDto">
 		<li class="list-group">
-			<div @onclick="() => SelectCustomer(customerDto)">
-				@customerDto.Email @customerDto.UserName
-			</div>
-		</li>
-	</Virtualize>
-</ul>
-
-<h3>Lift Of orders</h3>
-<div class="container">
-	<Virtualize Items="CustomerOrders" Context="orderDto">
-		<li class="list-group">
-			<div @onclick="() => SelectedOrder(orderDto)">
-				@orderDto.Id @orderDto.OrderDate
+			<div class="list-group-item list-group-item-action"
+			     @onclick="() => SelectCustomer(customerDto)">
+				Email: @customerDto.Email, Username: @customerDto.UserName
 			</div>
 		</li>
 	</Virtualize>
 </div>
 
-@*<textarea>@ActiveOrder.Email @ActiveOrder.Address</textarea>*@
+<br/>
 
-<div class="container">
-	<Virtualize Items="ActiveListProducts" Context="listItem">
-		<li class="list-group">
-			<div>
-				@listItem.StoreProductDto.ProductName @listItem.Quantity 
-			</div>
-		</li>
-	</Virtualize>
+<div class="container row mt-2">
+	<div class="container col-md-6">
+		<h4>List of orders</h4>
+		<Virtualize Items="CustomerOrders" Context="orderDto">
+			<li class="list-group-item list-group-item-action">
+				<div @onclick="() => SelectedOrder(orderDto)">
+					Order Number: @orderDto.Id, Order Date: @orderDto.OrderDate
+				</div>
+			</li>
+		</Virtualize>
+	</div>
+	<div class="container col-md-6">
+		<div hidden="@_isHidden">
+			<h4>Products in order: @ActiveOrder.Id:</h4>
+			<p>Email: @ActiveOrder.Email. UserName: @ActiveOrder.UserName</p>
+			<p>Adress: @ActiveOrder.Address</p>
+			<p>Order date: @ActiveOrder.OrderDate</p>
+			<Virtualize Items="ActiveListProducts" Context="listItem">
+				<li class="list-group-item">
+					<div>
+						Item: @listItem.StoreProductDto.ProductName. Quantity: @listItem.Quantity. Price: @listItem.StoreProductDto.Price.
+					</div>
+				</li>
+			</Virtualize>
+			<p>Total sum: @_orderSum €</p>
+		</div>
+	</div>
 </div>
 
 
-@code {
-	public List<CustomerDto> CustomerDtos { get; set; } = new();
-	public List<CustomerDto> SearchResult { get; set; } = new();
-	public CustomerDto ActiveCustomer { get; set; } = new();
-	public string EmailSearch { get; set; } = "";
-	public List<OrderDto> CustomerOrders { get; set; } = new();
-	public OrderDto ActiveOrder { get; set; } = new();
-	public List<ProductOrderQuantityDto> ActiveListProducts { get; set; } = new();
-	public string ResponseMessage { get; set; } = "";
-
-	protected override async Task OnInitializedAsync()
-	{
-		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<CustomerDto>>>(HttpClient.BaseAddress + "findCustomers");
-
-		if (response.Success)
-		{
-			CustomerDtos = response.Data.ToList();
-			ResponseMessage = response.Message;
-			FilterResults();
-		}
-		else
-			ResponseMessage = response.Message;
-
-		await base.OnInitializedAsync();
-	}
-
-	private async Task SelectCustomer(CustomerDto customerDto)
-	{
-		ActiveCustomer = customerDto;
-		ActiveListProducts.Clear();
-
-		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<OrderDto>>>(HttpClient.BaseAddress + $"getCustomerOrders/{customerDto.Email}");
-
-		if (response.Success)
-		{
-			ResponseMessage = response.Message;
-			CustomerOrders = response.Data.ToList();
-		}
-		else
-			ResponseMessage = response.Message;
-	}
-
-	private void FilterResults()
-	{
-		if (EmailSearch != "")
-		{
-			SearchResult = CustomerDtos.Where(c => c.Email.ToLower().Contains(EmailSearch.ToLower())).ToList();
-		}
-
-		else
-		{
-			SearchResult = CustomerDtos;
-		}
-	}
-
-	private void SelectedOrder(OrderDto orderDto)
-	{
-		ActiveOrder = orderDto;
-		ActiveListProducts = ActiveOrder.ProductOrderQuantityDtos.ToList();
-	}
-}
+@code { }

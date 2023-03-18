@@ -46,7 +46,7 @@ public class ProductService
 	{
 		var products = await _productRepository.GetAllItems();
 
-		if (products.Any(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower())))
+		if (products.Any(p => p.ProductName.Equals(newDtoProduct.ProductName)))
 		{
 			var toUpdate = await _productRepository.GetItemByName(newDtoProduct.ProductName);
 

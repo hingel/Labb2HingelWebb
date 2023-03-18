@@ -57,7 +57,7 @@ public class OrderService
 	{
 		var orders = await _orderStoreRepository.GetByEmail(email);
 
-		if (orders != null && orders.Count() > 0) //VIlken check behövs??
+		if (orders != null && orders.Any()) //TODO: Vilken check behövs??
 		{
 			var response = new ServiceResponse<IEnumerable<OrderDto>>()
 			{
