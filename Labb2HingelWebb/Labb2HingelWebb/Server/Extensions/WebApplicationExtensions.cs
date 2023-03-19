@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Labb2HingelWebb.Server.Services;
+using Labb2HingelWebb.Shared;
 using Labb2HingelWebb.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
@@ -14,21 +15,32 @@ public static class WebApplicationExtensions
 			var response = await customerService.FindUserByName(name);
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
-		});
+		}).RequireAuthorization();
 
-		app.MapGet("/findCustomers", async (CustomerService customerService) =>
+		app.MapGet("/findCustomers/{username}", async (CustomerService customerService, RoleService roleService, string username) =>
 		{
-			var response = await customerService.FindCustomers();
+			if (await roleService.UserIsInRole(username))
+			{
+				var response = await customerService.FindCustomers();
+				return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+			}
 
-			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
-		});
+			var response2 = new ServiceResponse<IEnumerable<CustomerDto>>
+			{
+				Message = "Not admin loggin",
+				Success = false
+			};
+
+			return response2.Success ? Results.Ok(response2) : Results.BadRequest(response2);
+			
+		}).RequireAuthorization();
 
 		app.MapPost("/updateUser", async (CustomerService customerService, CustomerDto updatedCustomerDto) =>
 		{
 			var response = await customerService.UpdateUser(updatedCustomerDto);
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
-		});
+		}).RequireAuthorization();
 
 		return app;
 	}
@@ -41,7 +53,7 @@ public static class WebApplicationExtensions
 				var response = await storeService.AddNewProduct(newDtoProduct);
 
 				return response.Success ? Results.Ok(response) : Results.BadRequest(response);
-			});
+			}).RequireAuthorization();
 
 		app.MapGet("/allProducts", async (ProductService storeService) =>
 		{
@@ -56,15 +68,10 @@ public static class WebApplicationExtensions
 			var response = await storeService.DeleteProduct(productName);
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
-		});
+		}).RequireAuthorization("admin_access");
 
 		return app;
 	}
-
-	//private static bool CheckRole(ProductService storeService)
-	//{
-	//	storeService.;
-	//}
 
 	public static WebApplication MapOrderEndPoints(this WebApplication app)
 	{
@@ -73,14 +80,14 @@ public static class WebApplicationExtensions
 			var response = await orderService.PlaceOrder(newOrder);
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
-		});
+		}).RequireAuthorization();
 
 		app.MapGet("/getCustomerOrders/{email}", async (OrderService orderService, string email) =>
 		{
 			var response = await orderService.GetOrders(email);
 
 			return response.Success ? Results.Ok(response) : Results.Ok(response); //TODO: Får inte tillbaks svar om inte OK resultat.
-		});
+		}).RequireAuthorization();
 		
 		return app;
 	}

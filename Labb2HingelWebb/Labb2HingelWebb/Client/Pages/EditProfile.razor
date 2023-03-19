@@ -13,12 +13,9 @@
 <div class="container">
 	<EditForm Model="ActiveCustomerDto" OnSubmit="UpdateUser">
 		<div class="form-control">
-			<label>Name</label>
-			<InputText @bind-Value="ActiveCustomerDto.UserName"></InputText>
+			<label>Name: @ActiveCustomerDto.UserName</label>
 			<label>Address</label>
 			<InputText @bind-Value="ActiveCustomerDto.Address"></InputText>
-			<label>Phone</label>
-			<InputText @bind-Value="ActiveCustomerDto.Phone"></InputText>
 		</div>
 		<button class="btn btn-primary">Send</button>
 	</EditForm>
@@ -27,8 +24,6 @@
 		<p>Response Message: @ResponseMessage</p>
 	</div>
 </div>
-
-
 
 
 @code {
@@ -40,7 +35,7 @@
 		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
 		var userName = userInfo.User.Identity.Name;
-
+		
 		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<CustomerDto>>(HttpClient.BaseAddress + $"findUserByName/{userName}");
 		
 		if (response.Success)

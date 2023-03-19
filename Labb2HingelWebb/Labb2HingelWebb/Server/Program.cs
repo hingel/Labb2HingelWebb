@@ -56,7 +56,6 @@ builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<CustomerService>();
 
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
-
 builder.Services.AddScoped<RoleService>();
 
 var app = builder.Build();

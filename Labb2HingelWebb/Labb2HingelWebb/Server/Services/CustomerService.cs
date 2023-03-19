@@ -15,7 +15,7 @@ public class CustomerService
 {
 	private UserManager<ApplicationUser> _userManager;
 	private IHttpContextAccessor _contextAccessor;
-	private readonly ApplicationDbContext _appDbcontext;
+	private readonly ApplicationDbContext _appDbcontext; //TODO: Använda inte i muköget
 
 
 	public CustomerService(UserManager<ApplicationUser> userManager, IHttpContextAccessor accessor, ApplicationDbContext appDbContext )

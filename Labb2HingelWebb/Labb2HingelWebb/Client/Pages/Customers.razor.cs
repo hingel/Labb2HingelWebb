@@ -19,7 +19,9 @@ partial class Customers
 
 	protected override async Task OnInitializedAsync()
 	{
-		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<CustomerDto>>>(HttpClient.BaseAddress + "findCustomers");
+		var user = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<CustomerDto>>>(HttpClient.BaseAddress + $"findCustomers/{user.User.Identity.Name}");
 
 		if (response.Success)
 		{
@@ -41,7 +43,6 @@ partial class Customers
 
 		if (response.Success)
 		{
-		//ActiveListProducts.Clear(); //behyövs denna?
 			if (response.Data != null && response.Data.Any())
 			{
 				ResponseMessage = response.Message;
