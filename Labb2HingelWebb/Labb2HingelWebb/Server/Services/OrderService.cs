@@ -18,70 +18,37 @@ public class OrderService
 
 	public async Task<ServiceResponse<string>> PlaceOrder(OrderDto newOrderDto)
 	{
-		if (newOrderDto.ProductOrderQuantityDtos == null)
+		if (newOrderDto.ProductOrderQuantityDtos != null)
 		{
-			return new ServiceResponse<string>()
+			//TODO: Calculate sum:
+			//Withdraw amount from account:
+			//Niklas pratade om att man kan hitta användaren på något sätt utan att bifoga email tex om jag minns rätt?
+
+			var response = await _customerService.FindUserByName(newOrderDto.UserName);
+			//Om betalning ok.
+
+			if (response.Success)
 			{
-				Message = "Order not sent. Nor products added.",
-				Success = false
-			};
-		}
-
-		var response = await _customerService.FindUserByName(newOrderDto.UserName);
-
-		if (response.Success)
-		{
-			var newOrder = new Order()
-			{
-				CustomerDto = response.Data,
-				ProductOrderQuantityDtos = newOrderDto.ProductOrderQuantityDtos,
-				OrderDate = DateTime.UtcNow
-			};
-
-			var addedProductCheck = await _orderStoreRepository.AddItemAsync(newOrder);
-			var paymentCheck = false;
-
-			if (addedProductCheck)
-			{
-				//Betalningssimulering
-				var randomPayment = new Random();
-
-				if (randomPayment.Next(0, 10) < 7)
+				var newOrder = new Order()
 				{
-					paymentCheck = true;
-				}
-			}
+					CustomerDto = response.Data,
+					ProductOrderQuantityDtos = newOrderDto.ProductOrderQuantityDtos,
+					OrderDate = DateTime.UtcNow
+				};
 
-			if (!paymentCheck)
-			{
-				var deleteProductCheck = await _orderStoreRepository.DeleteItemAsync(newOrder);
-
-				if (!deleteProductCheck)
-				{
-					//TODO: Har inget id här hur göra det bättre
-					throw new Exception($"Order: {newOrder.Id}, {newOrder.OrderDate} coudn't be removed. Contact support.");
-					//Kanske borde försöka igen?
-				}
+				await _orderStoreRepository.AddItemAsync(newOrder);
 
 				return new ServiceResponse<string>()
 				{
-					Message = "Order not sent. Payment failed",
+					Message = "Order sent. Thank you!",
 					Success = true
 				};
 			}
-
-			//Send order to dispatch department.
-
-			return new ServiceResponse<string>()
-			{
-				Message = "Order sent. Thank you!",
-				Success = true
-			};
 		}
 
 		return new ServiceResponse<string>()
 		{
-			Message = "Order not sent. No User found.",
+			Message = "Order not sent.",
 			Success = false
 		};
 	}

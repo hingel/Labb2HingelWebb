@@ -17,13 +17,10 @@ partial class Customers
 	private int _orderSum = 0;
 	private bool _isHidden = true;
 
-
-	public bool Test { get; set; } = false;
-
 	protected override async Task OnInitializedAsync()
 	{
 		var user = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-		
+
 		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<CustomerDto>>>(HttpClient.BaseAddress + $"findCustomers/{user.User.Identity.Name}");
 
 		if (response.Success)
