@@ -53,35 +53,41 @@ public class CustomerService
 			Success = false
 		};
 
-	}
-
-	//TODO: För test i nuläget. Används inte ta bort
-	public async Task<IdentityResult> GetUserByEmail(string email)
-	{
-
-		//var test = _userManager.Users.Where(u => u.Email.Contains(email)).FirstOrDefault();
-
-		var test = await _userManager.FindByEmailAsync(email);
-
-		test.UserName = "Stenen";
-		test.Adress = "Paradisgatan 18, Gbg";
-
-		var result = await _userManager.UpdateAsync(test);
-
-
-		return result;
-
-
-
+		//TODO: ta bort detta nedan
 		//För att ta bort en användare
 		//await _userManager.DeleteAsync(test);
 
 
 		//För att lägga till claims
-		await _userManager.AddClaimAsync(test, new Claim("hej", "hj"));
+		//await _userManager.AddClaimAsync(test, new Claim("hej", "hj"));
 
-		//För att lägga till användaren till rollistor.
-		await _userManager.AddToRoleAsync(test, "admin");
+		////För att lägga till användaren till rollistor.
+		//await _userManager.AddToRoleAsync(test, "admin");
+
+	}
+
+	public async Task<ServiceResponse<CustomerDto>> FindUserByEmail(string email)
+	{
+		var user = await _userManager.FindByEmailAsync(email);
+
+		//TODO: Hade varit trevligare att få större resultat iform av list
+		//var test = _userManager.Users.Where(u => u.Email.Contains(email));
+
+		if (user == null)
+		{
+			return new ServiceResponse<CustomerDto>()
+			{
+				Message = "user not found",
+				Success = false
+			};
+		}
+
+		return new ServiceResponse<CustomerDto>()
+		{
+			Data = ConvertCustomerToDto(user),
+			Message = "User found",
+			Success = true
+		};
 	}
 
 	public async Task<ServiceResponse<CustomerDto>> FindUserByName(string nickName)

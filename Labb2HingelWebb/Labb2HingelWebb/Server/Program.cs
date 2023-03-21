@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using Labb2HingelWebb.Server.Data;
 using Labb2HingelWebb.Server.Extensions;
 using Labb2HingelWebb.Server.Models;
@@ -22,7 +23,15 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 	.AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentityServer()
-	.AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+	.AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
+	{
+		//Tack till Fabian för de tre raderna nedan:
+		options.IdentityResources["openid"].UserClaims.Add("role");
+		options.ApiResources.Single().UserClaims.Add("role");
+	});
+
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("role");
+
 
 builder.Services.AddAuthentication()
 	.AddGoogle(googleOptions =>
@@ -110,10 +119,14 @@ app.MapGet("/hello", async () =>
 
 		var nUser = await usrMngr.FindByEmailAsync("henrik.ingelsten@gmail.com");
 
-			//await usrMngr.CreateAsync(nUser, "Abcd123!");
-			//if (nUser is not null)
-				//await usrMngr.AddToRoleAsync(nUser, role.Name);
+		//await usrMngr.CreateAsync(nUser, "Abcd123!");
 
+		//if (nUser is not null)
+		//	await usrMngr.AddToRoleAsync(nUser, role.Name);
+
+		var test = await usrMngr.IsInRoleAsync(nUser ,"admin");
+
+		return "testet visar: " + test.ToString();
 	}
 });
 

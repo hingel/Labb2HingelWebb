@@ -33,14 +33,22 @@ public static class WebApplicationExtensions
 
 			return response2.Success ? Results.Ok(response2) : Results.BadRequest(response2);
 			
-		}).RequireAuthorization();
+		}).RequireAuthorization("admin_access");
 
 		app.MapPost("/updateUser", async (CustomerService customerService, CustomerDto updatedCustomerDto) =>
 		{
 			var response = await customerService.UpdateUser(updatedCustomerDto);
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
-		}).RequireAuthorization();
+		}).RequireAuthorization("admin_access");
+
+		app.MapGet("/findUserByEmail/{email}", async (CustomerService customerService, string email) =>
+		{
+			var response = await customerService.FindUserByEmail(email);
+
+			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+		}).RequireAuthorization("admin_access");
+
 
 		return app;
 	}
@@ -53,7 +61,7 @@ public static class WebApplicationExtensions
 				var response = await storeService.AddNewProduct(newDtoProduct);
 
 				return response.Success ? Results.Ok(response) : Results.BadRequest(response);
-			}).RequireAuthorization();
+			}).RequireAuthorization("admin_access");
 
 		app.MapGet("/allProducts", async (ProductService storeService) =>
 		{
@@ -61,7 +69,7 @@ public static class WebApplicationExtensions
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 
-		}).RequireAuthorization(); //"admin_access"); //Får inte detta att fungera.
+		}); //.RequireAuthorization(); //Får inte detta att fungera.
 
 		app.MapDelete("/deleteProduct/{productName}", async (ProductService storeService, string productName) =>
 		{
@@ -87,7 +95,7 @@ public static class WebApplicationExtensions
 			var response = await orderService.GetOrders(email);
 
 			return response.Success ? Results.Ok(response) : Results.Ok(response); //TODO: Får inte tillbaks svar om inte OK resultat.
-		}).RequireAuthorization();
+		}).RequireAuthorization("admin_access");
 		
 		return app;
 	}

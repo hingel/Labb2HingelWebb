@@ -11,15 +11,31 @@
 <h3>EditProfile</h3>
 
 <div class="container">
+
+	<div class="form-control">
+		<label>Enter email</label>
+		<InputText @bind-Value="EmailSearch"></InputText>
+		<button class="btn btn-primary" @onclick="FindUser">Search</button>
+	</div>
+
+
+
 	<EditForm Model="ActiveCustomerDto" OnSubmit="UpdateUser">
 		<div class="form-control">
-			<label>Name: @ActiveCustomerDto.UserName</label>
 			<label>Address</label>
 			<InputText @bind-Value="ActiveCustomerDto.Address"></InputText>
 		</div>
+		<div class="form-control">
+			<label>Phone</label>
+			<InputText @bind-Value="ActiveCustomerDto.Phone"></InputText>
+		</div>
+		<div class="form-control">
+			<label>UserName</label>
+			<InputText @bind-Value="ActiveCustomerDto.UserName"></InputText>
+		</div>
 		<button class="btn btn-primary">Send</button>
 	</EditForm>
-	
+
 	<div>
 		<p>Response Message: @ResponseMessage</p>
 	</div>
@@ -27,33 +43,45 @@
 
 
 @code {
-
-
-//TODO: Delete this page. Not Needed anymor. If not used as an admin?
-
-
 	public CustomerDto ActiveCustomerDto { get; set; } = new();
 	public string ResponseMessage { get; set; } = string.Empty;
+	public string EmailSearch { get; set; } = "";
 
-	protected override async Task OnInitializedAsync()
+	//protected override async Task OnInitializedAsync()
+	//{
+	//	var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+	//	var userName = userInfo.User.Identity.Name;
+
+		
+	//	var response = await HttpClient.GetFromJsonAsync<ServiceResponse<CustomerDto>>(HttpClient.BaseAddress + $"findUserByName/{userName}");
+		
+	//	if (response.Success)
+	//	{
+	//		ActiveCustomerDto = response.Data;
+	//		ResponseMessage = response.Message;
+	//	}
+	//	else
+	//	{
+	//		ResponseMessage = response.Message;
+	//	}
+		
+	//	await base.OnInitializedAsync();
+	//}
+
+	private async Task FindUser()
 	{
-		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<CustomerDto>>(HttpClient.BaseAddress + $"finduserByEmail/{EmailSearch}");
 
-		var userName = userInfo.User.Identity.Name;
-		
-		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<CustomerDto>>(HttpClient.BaseAddress + $"findUserByName/{userName}");
-		
 		if (response.Success)
 		{
-			ActiveCustomerDto = response.Data;
 			ResponseMessage = response.Message;
+			ActiveCustomerDto = response.Data;
 		}
 		else
 		{
-			ResponseMessage = response.Message;
+			ResponseMessage = "No user found";
 		}
-		
-		await base.OnInitializedAsync();
 	}
 
 

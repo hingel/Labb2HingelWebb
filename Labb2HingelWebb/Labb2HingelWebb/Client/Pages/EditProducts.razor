@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Labb2HingelWebb.Shared
 @inject HttpClient HttpClient
-@attribute [Authorize]
+@attribute [Authorize(Roles = "admin")]
 
 <h3>EditProducts</h3>
 
