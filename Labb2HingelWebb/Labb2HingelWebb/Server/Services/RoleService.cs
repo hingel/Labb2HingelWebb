@@ -14,9 +14,7 @@ public class RoleService
 	{
 		_roleManager = roleManager;
 		_userManager = userManager;
-
 	}
-
 
 	public async Task<bool> UserIsInRole(string username)
 	{
