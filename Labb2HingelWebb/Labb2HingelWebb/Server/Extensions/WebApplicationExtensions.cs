@@ -1,8 +1,9 @@
-﻿using Azure;
+﻿using Labb2HingelWebb.Server.Models;
 using Labb2HingelWebb.Server.Services;
 using Labb2HingelWebb.Shared;
 using Labb2HingelWebb.Shared.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Labb2HingelWebb.Server.Extensions;
 
@@ -61,14 +62,15 @@ public static class WebApplicationExtensions
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 
-		}).RequireAuthorization(); //"admin_access"); //Får inte detta att fungera.
+		}).RequireAuthorization(); //"admin"); //FÅr inte detta att fungera.
+
 
 		app.MapDelete("/deleteProduct/{productName}", async (ProductService storeService, string productName) =>
 		{
 			var response = await storeService.DeleteProduct(productName);
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
-		}).RequireAuthorization("admin_access");
+		}).RequireAuthorization();
 
 		return app;
 	}
@@ -86,8 +88,10 @@ public static class WebApplicationExtensions
 		{
 			var response = await orderService.GetOrders(email);
 
-			return response.Success ? Results.Ok(response) : Results.Ok(response); //TODO: Får inte tillbaks svar om inte OK resultat.
-		}).RequireAuthorization();
+			return response.Success
+				? Results.Ok(response)
+				: Results.Ok(response); //TODO: Får inte tillbaks svar om inte OK resultat.
+		}).RequireAuthorization(); //p => p.RequireClaim("Admin", "true")); //Detta funkar inte heller.
 		
 		return app;
 	}

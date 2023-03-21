@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Labb2HingelWebb.Server.Data;
 using Labb2HingelWebb.Server.Extensions;
 using Labb2HingelWebb.Server.Models;
@@ -36,10 +37,11 @@ builder.Services.AddAuthentication().AddJwtBearer();
 
 builder.Services.AddAuthorizationBuilder()
 	.AddPolicy("admin_access", policy =>
-		policy
-			.RequireRole("admin"));
-	//.RequireScope());
+		policy.RequireRole("admin"));
+//.RequireScope());
 
+//builder.Services.AddAuthorization(options =>
+//	options.AddPolicy("Admin", policy => policy.RequireAuthenticatedUser().RequireClaim("IsAdmin", "true")));
 
 
 builder.Services.AddControllersWithViews();
@@ -106,9 +108,14 @@ app.MapGet("/hello", async () =>
 
 		//var nUser = new ApplicationUser() { UserName = "test", Email = "test@test.se" };
 
-		var role = rolemgt.Roles.FirstOrDefault(r => r.Name== "admin");
+		//var role = rolemgt.Roles.FirstOrDefault(r => r.Name== "admin");
 
 		var nUser = await usrMngr.FindByEmailAsync("henrik.ingelsten@gmail.com");
+
+		if (nUser != null)
+		{
+			await usrMngr.AddClaimAsync(nUser, new Claim("IsAdmin", "true"));
+		}
 
 			//await usrMngr.CreateAsync(nUser, "Abcd123!");
 			//if (nUser is not null)
@@ -118,6 +125,6 @@ app.MapGet("/hello", async () =>
 });
 
 
-app.MapGet( "/test", () => "hej").RequireAuthorization("admin_access");
+app.MapGet( "/test", () => "hej").RequireAuthorization();
 
 app.Run();

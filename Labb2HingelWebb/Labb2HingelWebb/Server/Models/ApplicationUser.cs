@@ -7,7 +7,6 @@ namespace Labb2HingelWebb.Server.Models
 		public string? Adress { get; set; } = string.Empty;
 		//Kan jag lägga till ytterligare info här o köra en ny migration
 
-		//TODO: Vet inte om denna ska vara med. Försök ta bort i databasen om det behövs?
 		//public virtual ICollection<IdentityRole> Roles { get; set; } = new HashSet<IdentityRole>();
 
 	}

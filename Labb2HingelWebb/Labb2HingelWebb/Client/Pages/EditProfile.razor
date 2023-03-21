@@ -29,7 +29,7 @@
 @code {
 	public CustomerDto ActiveCustomerDto { get; set; } = new();
 	public string ResponseMessage { get; set; } = string.Empty;
-
+	
 	protected override async Task OnInitializedAsync()
 	{
 		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -48,6 +48,8 @@
 			ResponseMessage = response.Message;
 		}
 		
+		ResponseMessage = userInfo.User.HasClaim("IsAdmin", "true").ToString() + "får se om det fnukar."; //TODO: ta bort detta.
+
 		await base.OnInitializedAsync();
 	}
 
