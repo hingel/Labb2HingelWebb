@@ -25,7 +25,6 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.AddIdentityServer()
 	.AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
 	{
-		//Tack till Fabian för de tre raderna nedan:
 		options.IdentityResources["openid"].UserClaims.Add("role");
 		options.ApiResources.Single().UserClaims.Add("role");
 	});
@@ -47,9 +46,6 @@ builder.Services.AddAuthorizationBuilder()
 	.AddPolicy("admin_access", policy =>
 		policy
 			.RequireRole("admin"));
-	//.RequireScope());
-
-
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -65,7 +61,7 @@ builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<CustomerService>();
 
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
-builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<PurchaseService>();
 
 var app = builder.Build();
 

@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Labb2HingelWebb.Server.Services;
 
-
-//Tillfällig class för att fatta strukturen 
 public class CustomerService
 {
 	private UserManager<ApplicationUser> _userManager;
@@ -24,54 +22,10 @@ public class CustomerService
 		_contextAccessor = accessor;
 		_appDbcontext = appDbContext;
 	}
-
-
-	//TODO: försök få till en admin check här:
-	public async Task<ServiceResponse<string>> CheckRole()
-	{
-		var user =  _contextAccessor.HttpContext.User;
-
-		var check = user.IsInRole("admin");
-
-		//var checkRole =
-		//	await _appDbcontext.UserRoles.AnyAsync(
-		//		user.IsInRole(_appDbcontext.Roles.FirstOrDefault(r => r.Name == "admin").Name));
-
-		if (check)
-		{
-			return new ServiceResponse<string>()
-			{
-				Data = "hittad",
-				Message = "admin användare",
-				Success = true
-			};
-		}
-
-		return new ServiceResponse<string>()
-		{
-			Message = "not found",
-			Success = false
-		};
-
-		//TODO: ta bort detta nedan
-		//För att ta bort en användare
-		//await _userManager.DeleteAsync(test);
-
-
-		//För att lägga till claims
-		//await _userManager.AddClaimAsync(test, new Claim("hej", "hj"));
-
-		////För att lägga till användaren till rollistor.
-		//await _userManager.AddToRoleAsync(test, "admin");
-
-	}
-
+	
 	public async Task<ServiceResponse<CustomerDto>> FindUserByEmail(string email)
 	{
 		var user = await _userManager.FindByEmailAsync(email);
-
-		//TODO: Hade varit trevligare att få större resultat iform av list
-		//var test = _userManager.Users.Where(u => u.Email.Contains(email));
 
 		if (user == null)
 		{

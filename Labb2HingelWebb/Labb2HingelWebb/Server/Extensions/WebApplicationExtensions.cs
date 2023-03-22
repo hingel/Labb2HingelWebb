@@ -17,21 +17,11 @@ public static class WebApplicationExtensions
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 		}).RequireAuthorization();
 
-		app.MapGet("/findCustomers/{username}", async (CustomerService customerService, RoleService roleService, string username) =>
+
+		app.MapGet("/findCustomers/", async (CustomerService customerService) =>
 		{
-			if (await roleService.UserIsInRole(username))
-			{
-				var response = await customerService.FindCustomers();
-				return response.Success ? Results.Ok(response) : Results.BadRequest(response);
-			}
-
-			var response2 = new ServiceResponse<IEnumerable<CustomerDto>>
-			{
-				Message = "Not admin loggin",
-				Success = false
-			};
-
-			return response2.Success ? Results.Ok(response2) : Results.BadRequest(response2);
+			var response = await customerService.FindCustomers();
+			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 			
 		}).RequireAuthorization("admin_access");
 
@@ -48,7 +38,6 @@ public static class WebApplicationExtensions
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 		}).RequireAuthorization("admin_access");
-
 
 		return app;
 	}
@@ -83,9 +72,10 @@ public static class WebApplicationExtensions
 
 	public static WebApplication MapOrderEndPoints(this WebApplication app)
 	{
-		app.MapPost("/placeOrder", async (OrderService orderService, OrderDto newOrder) =>
+		app.MapPost("/placeOrder", async (OrderService orderService, OrderDto newOrder, PurchaseService purchaseService) =>
 		{
-			var response = await orderService.PlaceOrder(newOrder);
+			var response = await orderService.PlaceOrder(newOrder); //Denna ska skicka till UnitOfWork delen.
+
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 		}).RequireAuthorization();
