@@ -67,12 +67,13 @@ public class CustomerService
 	
 	public async Task<ServiceResponse<CustomerDto>> UpdateUser(CustomerDto updatedCustomerDto)
 	{
-		//TODO: Fråga till Niklas, ska detta läggas i en trycatch för att inte få exception??
 		var userToUpdate = await _userManager.FindByEmailAsync(updatedCustomerDto.Email);
 
 		userToUpdate.Adress = updatedCustomerDto.Address;
 		userToUpdate.PhoneNumber = updatedCustomerDto.Phone;
 		userToUpdate.UserName = updatedCustomerDto.UserName;
+		userToUpdate.FirstName = updatedCustomerDto.FirstName;
+		userToUpdate.LastName = updatedCustomerDto.LastName;
 
 		var response = await _userManager.UpdateAsync(userToUpdate); //TODO: Använda emailadressen istället.Eller det går inte heller?
 
@@ -122,7 +123,9 @@ public class CustomerService
 			UserName = activeCustomer.UserName,
 			Email = activeCustomer.Email,
 			Address = activeCustomer.Adress,
-			Phone = activeCustomer.PhoneNumber
+			Phone = activeCustomer.PhoneNumber,
+			FirstName = activeCustomer.FirstName,
+			LastName = activeCustomer.LastName
 		};
 	}
 }

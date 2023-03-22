@@ -62,6 +62,7 @@ builder.Services.AddScoped<CustomerService>();
 
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
 builder.Services.AddScoped<PurchaseService>();
+builder.Services.AddScoped<UnitOfWork>();
 
 var app = builder.Build();
 

@@ -75,13 +75,10 @@ partial class StorePage : ComponentBase
 			_responseMessage = "Product Removed";
 			_shoppingCartSum -= productDto.Price;
 		}
-
 	}
 
 	private async Task CheckOut()
 	{
-		//TODO: Niklas pratade nått om att det går att kolla vem som skickat responset i backend? Är det möjligt?
-
 		if (ShoppingCartDto.Count == 0)
 		{
 			return;
@@ -98,16 +95,10 @@ partial class StorePage : ComponentBase
 
 		var response = await HttpClient.PostAsJsonAsync(HttpClient.BaseAddress + "placeOrder", newOrder);
 		var result = await response.Content.ReadFromJsonAsync<ServiceResponse<string>>();
-
-		if (result.Success)
-		{
-			ShoppingCartDto = new();
-			_responseMessage = result.Message;
-		}
-
-		else
-		{
-			_responseMessage = result.Message;
-		}
+		
+		ShoppingCartDto = new();
+		_responseMessage = result.Message;
+		
+		_shoppingCartSum = 0;
 	}
 }

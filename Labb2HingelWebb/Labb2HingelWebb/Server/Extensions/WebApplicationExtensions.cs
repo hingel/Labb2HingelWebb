@@ -58,7 +58,7 @@ public static class WebApplicationExtensions
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 
-		}); //.RequireAuthorization();
+		});
 
 		app.MapDelete("/deleteProduct/{productName}", async (ProductService storeService, string productName) =>
 		{
@@ -72,11 +72,10 @@ public static class WebApplicationExtensions
 
 	public static WebApplication MapOrderEndPoints(this WebApplication app)
 	{
-		app.MapPost("/placeOrder", async (OrderService orderService, OrderDto newOrder, PurchaseService purchaseService) =>
+		app.MapPost("/placeOrder", async (UnitOfWork unitOfWork, OrderDto newOrderDto) =>
 		{
-			var response = await orderService.PlaceOrder(newOrder); //Denna ska skicka till UnitOfWork delen.
-
-
+			var response = await unitOfWork.PlaceOrderCheck(newOrderDto);
+			
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 		}).RequireAuthorization();
 

@@ -29,6 +29,15 @@
 			<label>Phone</label>
 			<InputText @bind-Value="ActiveCustomerDto.Phone"></InputText>
 		</div>
+
+		<div class="form-control">
+			<label>FistName</label>
+			<InputText @bind-Value="ActiveCustomerDto.FirstName"></InputText>
+		</div>
+		<div class="form-control">
+			<label>LastName</label>
+			<InputText @bind-Value="ActiveCustomerDto.LastName"></InputText>
+		</div>
 		<div class="form-control">
 			<label>UserName</label>
 			<InputText @bind-Value="ActiveCustomerDto.UserName"></InputText>
@@ -46,29 +55,7 @@
 	public CustomerDto ActiveCustomerDto { get; set; } = new();
 	public string ResponseMessage { get; set; } = string.Empty;
 	public string EmailSearch { get; set; } = "";
-
-	//protected override async Task OnInitializedAsync()
-	//{
-	//	var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-	//	var userName = userInfo.User.Identity.Name;
-
-		
-	//	var response = await HttpClient.GetFromJsonAsync<ServiceResponse<CustomerDto>>(HttpClient.BaseAddress + $"findUserByName/{userName}");
-		
-	//	if (response.Success)
-	//	{
-	//		ActiveCustomerDto = response.Data;
-	//		ResponseMessage = response.Message;
-	//	}
-	//	else
-	//	{
-	//		ResponseMessage = response.Message;
-	//	}
-		
-	//	await base.OnInitializedAsync();
-	//}
-
+	
 	private async Task FindUser()
 	{
 		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<CustomerDto>>(HttpClient.BaseAddress + $"finduserByEmail/{EmailSearch}");
@@ -83,7 +70,6 @@
 			ResponseMessage = "No user found";
 		}
 	}
-
 
 	private async Task UpdateUser()
 	{

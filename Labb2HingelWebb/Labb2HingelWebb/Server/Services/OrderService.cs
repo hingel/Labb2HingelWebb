@@ -18,14 +18,9 @@ public class OrderService
 
 	public async Task<ServiceResponse<string>> PlaceOrder(OrderDto newOrderDto)
 	{
-		if (newOrderDto.ProductOrderQuantityDtos != null)
+		if (newOrderDto.ProductOrderQuantityDtos != null) //TODO: Flytta denna check till front end.
 		{
-			//TODO: Calculate sum:
-			//Withdraw amount from account:
-			//Niklas pratade om att man kan hitta användaren på något sätt utan att bifoga email tex om jag minns rätt?
-
 			var response = await _customerService.FindUserByName(newOrderDto.UserName);
-			//Om betalning ok.
 
 			if (response.Success)
 			{
@@ -36,10 +31,11 @@ public class OrderService
 					OrderDate = DateTime.UtcNow
 				};
 
-				await _orderStoreRepository.AddItemAsync(newOrder);
+				var ordernr = await _orderStoreRepository.AddItemAsync(newOrder);
 
 				return new ServiceResponse<string>()
 				{
+					Data = ordernr,
 					Message = "Order sent. Thank you!",
 					Success = true
 				};
@@ -81,6 +77,26 @@ public class OrderService
 		{
 			Success = false,
 			Message = "No orders found"
+		};
+	}
+
+	public async Task<ServiceResponse<string>> DeleteOrderAsync(string id)
+	{
+		var result = await _orderStoreRepository.DeleteItemAsync(id);
+
+		if (result)
+		{
+			return new ServiceResponse<string>()
+			{
+				Message = "Order deleted",
+				Success = true
+			};
+		}
+
+		return new ServiceResponse<string>()
+		{
+			Message = "Order not deleted, contact helpdesk",
+			Success = false
 		};
 	}
 }

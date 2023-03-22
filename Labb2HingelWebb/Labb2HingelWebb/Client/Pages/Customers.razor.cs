@@ -19,9 +19,7 @@ partial class Customers
 
 	protected override async Task OnInitializedAsync()
 	{
-		var user = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<CustomerDto>>>(HttpClient.BaseAddress + $"findCustomers/{user.User.Identity.Name}");
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<CustomerDto>>>(HttpClient.BaseAddress + $"findCustomers/");
 
 		if (response.Success)
 		{

@@ -2,7 +2,7 @@
 
 public interface IOrderRepository<T>
 {	
-	Task AddItemAsync(T item);
+	Task<string> AddItemAsync(T item);
 	Task<IEnumerable<T>> GetByEmail(string email);
-
+	Task<bool> DeleteItemAsync(string id);
 }

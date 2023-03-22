@@ -35,6 +35,10 @@ namespace Labb2HingelWebb.Server.Areas.Identity.Pages.Account.Manage
         [BindProperty]
         public string Address { get; set; }
 
+        [BindProperty]
+        public string FirstName { get; set; }
+        [BindProperty]
+        public string LastName { get; set; }
 
 		/// <summary>
 		///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -70,6 +74,8 @@ namespace Labb2HingelWebb.Server.Areas.Identity.Pages.Account.Manage
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
             Address = user.Adress;
+            FirstName = user.FirstName;
+            LastName = user.LastName;
 
 			Username = userName;
 
@@ -116,9 +122,13 @@ namespace Labb2HingelWebb.Server.Areas.Identity.Pages.Account.Manage
                 }
             }
 
+            //TODO: nån smartare check här?
             if (Address.Length > 0)
             {
 	            user.Adress = Address;
+                user.FirstName = FirstName;
+                user.LastName = LastName;
+
 	            var setAddressResult = await _userManager.UpdateAsync(user);
 
 	            if (!setAddressResult.Succeeded)
@@ -127,8 +137,7 @@ namespace Labb2HingelWebb.Server.Areas.Identity.Pages.Account.Manage
 		            return RedirectToPage();
 	            }
             }
-
-
+            
 			await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();

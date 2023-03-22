@@ -19,11 +19,13 @@ public class OrderRepository : IOrderRepository<Order>
 			new MongoCollectionSettings() { AssignIdOnInsert = true });
 	}
 	
-	public async Task AddItemAsync(Order item)
+	public async Task<string> AddItemAsync(Order item)
 	{
 		item.Id = await GetOrderNumber();
 
 		await _storeOrderCollection.InsertOneAsync(item);
+
+		return item.Id;
 	}
 
 	public async Task<IEnumerable<Order>> GetByEmail(string email)
@@ -33,12 +35,32 @@ public class OrderRepository : IOrderRepository<Order>
 
 		return result.ToList().Where(o => o.CustomerDto.Email.ToLower() == email.ToLower());
 	}
+	
+	public async Task<bool> DeleteItemAsync(string id)
+	{
+		var filter = Builders<Order>.Filter.Eq("Id", id);
+		var test = await _storeOrderCollection.DeleteOneAsync(filter);
 
-	//TODO: Denna är inte rikigt bra. Måste kolla om det kan finnas en order med det numret också.
+		if (test.DeletedCount == 1)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	private async Task<string> GetOrderNumber()
 	{
 		var filter = Builders<Order>.Filter.Empty;
 		var result = await _storeOrderCollection.CountDocumentsAsync(filter) + 1;
+
+		var checkOrderNo = Builders<Order>.Filter.Eq("Id", result.ToString());
+		while (await _storeOrderCollection.FindAsync(checkOrderNo) == null)
+		{
+			result += 1;
+			checkOrderNo = Builders<Order>.Filter.Eq("Id", result);
+		}
+
 		return result.ToString();
 	}
 }
