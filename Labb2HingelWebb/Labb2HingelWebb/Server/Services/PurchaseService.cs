@@ -6,41 +6,26 @@ namespace Labb2HingelWebb.Server.Services;
 
 public class PurchaseService
 {
-
-
 	public async Task<ServiceResponse<string>> PlaceOrder(OrderDto newOrderDto)
 	{
-		if (newOrderDto.ProductOrderQuantityDtos != null)
+		//Betalningssimulering
+		var randomPayment = new Random();
+
+		if (randomPayment.Next(0, 10) < 7)
 		{
-
-				var newOrder = new Order()
-				{
-					CustomerDto = response.Data,
-					ProductOrderQuantityDtos = newOrderDto.ProductOrderQuantityDtos,
-					OrderDate = DateTime.UtcNow
-				};
-
-				await _orderStoreRepository.AddItemAsync(newOrder);
-
-				return new ServiceResponse<string>()
-				{
-					Message = "Order sent. Thank you!",
-					Success = true
-				};
-			
+			return new ServiceResponse<string>()
+			{
+				Message = "Order sent. Thank you!",
+				Success = true
+			};
 		}
 
 		return new ServiceResponse<string>()
 		{
-			Message = "Order not sent.",
+
+			Message = "Payment failed",
 			Success = false
 		};
-
-
-		return new ServiceResponse<string>()
-		{
-			Message = "OK",
-			Success = true
-		};
 	}
+
 }
