@@ -14,14 +14,14 @@ public static class WebApplicationExtensions
 		{
 			var response = await customerService.FindUserByName(name);
 
-			return Results.Ok(response); // : Results.BadRequest(response);
+			return Results.Ok(response);
 		}).RequireAuthorization();
 
 
 		app.MapGet("/findCustomers/", async (CustomerService customerService) =>
 		{
 			var response = await customerService.FindCustomers();
-			return Results.Ok(response); // : Results.BadRequest(response);
+			return Results.Ok(response);
 			
 		}).RequireAuthorization("admin_access");
 

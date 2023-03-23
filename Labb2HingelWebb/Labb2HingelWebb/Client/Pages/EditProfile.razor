@@ -18,8 +18,6 @@
 		<button class="btn btn-primary" @onclick="FindUser">Search</button>
 	</div>
 
-
-
 	<EditForm Model="ActiveCustomerDto" OnSubmit="UpdateUser">
 		<div class="form-control">
 			<label>Address</label>
@@ -37,10 +35,6 @@
 		<div class="form-control">
 			<label>LastName</label>
 			<InputText @bind-Value="ActiveCustomerDto.LastName"></InputText>
-		</div>
-		<div class="form-control">
-			<label>UserName</label>
-			<InputText @bind-Value="ActiveCustomerDto.UserName"></InputText>
 		</div>
 		<button class="btn btn-primary">Send</button>
 	</EditForm>

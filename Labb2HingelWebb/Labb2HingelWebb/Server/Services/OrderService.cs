@@ -64,7 +64,7 @@ public class OrderService
 					Address = o.CustomerDto.Address
 				}),
 				Success = true,
-				Message = "Order from ${email}"
+				Message = $"Order from {email}"
 			};
 
 			return response;

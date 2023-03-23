@@ -135,7 +135,7 @@ app.MapGet("/fillData/{userName}", async (string userName) =>
 		{
 			return Results.Ok(new ServiceResponse<List<string>>()
 			{
-				Message = "User is already in role",
+				Message = "User already is in role",
 				Success = false
 			});
 		}
@@ -158,14 +158,14 @@ app.MapGet("/fillData/{userName}", async (string userName) =>
 		{
 			return Results.Ok(new ServiceResponse<List<string>>()
 			{
-				Message = "User is already exists",
+				Message = "User already exists",
 				Success = false
 			});
 		}
 
 		var result = await dataCreationManager.AddDataAsync(newUser);
 
-		return result.Success ?  Results.Ok(result) : Results.BadRequest(result);
+		return result.Success ? Results.Ok(result) : Results.BadRequest(result);
 	}
 }).RequireAuthorization();
 

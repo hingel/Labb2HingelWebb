@@ -51,7 +51,7 @@
 		<div hidden="@_isHidden">
 			<h4>Products in order: @ActiveOrder.Id:</h4>
 			<p>Email: @ActiveOrder.Email. UserName: @ActiveOrder.UserName</p>
-			<p>Adress: @ActiveOrder.Address</p>
+			<p>Address: @ActiveOrder.Address</p>
 			<p>Order date: @ActiveOrder.OrderDate</p>
 			<Virtualize Items="ActiveListProducts" Context="listItem">
 				<li class="list-group-item">
@@ -65,5 +65,6 @@
 	</div>
 </div>
 
+<p>@ResponseMessage</p>
 
 @code { }

@@ -26,6 +26,7 @@ partial class StorePage : ComponentBase
 		if (response.Success)
 		{
 			ListStoreProductDtos.AddRange(response.Data.Where(p => p.IsActive));
+			_responseMessage = response.Message;
 		}
 
 		await base.OnInitializedAsync();
