@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using Labb2HingelWebb.Server;
 using Labb2HingelWebb.Server.Data;
 using Labb2HingelWebb.Server.Extensions;
 using Labb2HingelWebb.Server.Models;
@@ -64,6 +65,8 @@ builder.Services.AddScoped<RoleManager<IdentityRole>>();
 builder.Services.AddScoped<PurchaseService>();
 builder.Services.AddScoped<UnitOfWork>();
 
+builder.Services.AddScoped<DataCreation>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -101,31 +104,53 @@ app.MapCustomerEndPoints();
 
 app.MapOrderEndPoints();
 
-app.MapGet("/hello", async () =>
+app.MapGet("/fillData", async (string userName) =>
 {
 	using (var scope = app.Services.CreateScope())
 	{
 		var rolemgt = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
 		var usrMngr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-		//await rolemgt.CreateAsync(new IdentityRole() {Name = "admin"});
-
-		//var nUser = new ApplicationUser() { UserName = "test", Email = "test@test.se" };
-
+		var dataCreationManager = scope.ServiceProvider.GetRequiredService<DataCreation>();
+		
 		var role = rolemgt.Roles.FirstOrDefault(r => r.Name== "admin");
 
-		var nUser = await usrMngr.FindByEmailAsync("henrik.ingelsten@gmail.com");
+		if (role is null)
+		{
+			await rolemgt.CreateAsync(new IdentityRole() {Name = "admin"});
+		}
 
-		//await usrMngr.CreateAsync(nUser, "Abcd123!");
+		var user = await usrMngr.FindByNameAsync(userName);
 
-		//if (nUser is not null)
-		//	await usrMngr.AddToRoleAsync(nUser, role.Name);
+		if (user is null)
+		{
+			return "User not found";
+		}
 
-		var test = await usrMngr.IsInRoleAsync(nUser ,"admin");
+		if (await usrMngr.IsInRoleAsync(user, role.Name))
+		{
+			return "User is already in role";
+		}
 
-		return "testet visar: " + test.ToString();
+		await usrMngr.AddToRoleAsync(user, role.Name);
+
+		//Här skapa datan, eller köra metod som skapar datan.
+
+		await usrMngr.CreateAsync(new ApplicationUser()
+			{
+				FirstName = "Göran",
+				LastName = "J",
+				Adress = "Där borta vägen 5, 123 45 GBG",
+				PhoneNumber = "+123456",
+				Email = "göran@jmejl.se"
+			}, "ABcd1234%");
+
+		var newUser = await usrMngr.FindByEmailAsync("göran@jmejl.se");
+		
+		await dataCreationManager.AddDataAsync(newUser);
+
+		return "testet visar: ";
 	}
-});
+}).RequireAuthorization();
 
 
 app.MapGet( "/test", () => "hej").RequireAuthorization("admin_access");

@@ -2,5 +2,5 @@
 
 public enum ProductCategory
 {
-	Rock = 1, Stick, Dirt, None
+	Coffee = 1, Tea, ColdDrinks, Other
 }

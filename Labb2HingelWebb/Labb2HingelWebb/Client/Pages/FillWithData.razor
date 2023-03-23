@@ -1,0 +1,40 @@
+﻿@page "/FillWithData"
+@using Labb2HingelWebb.Shared
+
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+<h3>FillWithData</h3>
+
+<table>
+
+</table>
+
+
+@code {
+	//Bara köra ett api
+	//Gör den inloggade personen till admin
+
+
+	//Kan sen kolla om det finns redan en person som är admin så kan man inte köra scriptet.
+
+	public string ResponseMessage { get; set; }
+	public string CustomerName { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+		CustomerName = userInfo.User.Identity.Name;
+
+		var result = await HttpClient.GetFromJsonAsync<ServiceResponse<string>>(HttpClient.BaseAddress + "fillData");
+
+		//Kan göra en redirect om det blir falskt svar? Datan redan ifylld. Kanske med en timer?
+
+
+		await base.OnInitializedAsync();
+	}
+
+
+}

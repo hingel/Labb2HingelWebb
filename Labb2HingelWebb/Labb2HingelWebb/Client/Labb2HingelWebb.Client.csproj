@@ -28,11 +28,16 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Pages\EditProducts.razor" />
+    <_ContentIncludedByDefault Remove="Pages\FillWithData.razor" />
     <_ContentIncludedByDefault Remove="Pages\StorePage.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Pages\EditProducts.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\FillWithData.razor" />
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,6 @@
 using Labb2HingelWebb.Shared.DTOs;
 using Labb2HingelWebb.Shared;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Labb2HingelWebb.Client.Pages;
 
@@ -101,4 +100,6 @@ partial class StorePage : ComponentBase
 		
 		_shoppingCartSum = 0;
 	}
+
+	//TODO: Fixa till tända o släcka metoden på ett snyggare sätt i HTML-delen.
 }

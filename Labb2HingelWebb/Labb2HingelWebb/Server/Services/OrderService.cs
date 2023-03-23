@@ -18,28 +18,25 @@ public class OrderService
 
 	public async Task<ServiceResponse<string>> PlaceOrder(OrderDto newOrderDto)
 	{
-		if (newOrderDto.ProductOrderQuantityDtos != null) //TODO: Flytta denna check till front end.
+		var response = await _customerService.FindUserByName(newOrderDto.UserName);
+
+		if (response.Success)
 		{
-			var response = await _customerService.FindUserByName(newOrderDto.UserName);
-
-			if (response.Success)
+			var newOrder = new Order()
 			{
-				var newOrder = new Order()
-				{
-					CustomerDto = response.Data,
-					ProductOrderQuantityDtos = newOrderDto.ProductOrderQuantityDtos,
-					OrderDate = DateTime.UtcNow
-				};
+				CustomerDto = response.Data,
+				ProductOrderQuantityDtos = newOrderDto.ProductOrderQuantityDtos,
+				OrderDate = DateTime.UtcNow
+			};
 
-				var ordernr = await _orderStoreRepository.AddItemAsync(newOrder);
+			var ordernr = await _orderStoreRepository.AddItemAsync(newOrder);
 
-				return new ServiceResponse<string>()
-				{
-					Data = ordernr,
-					Message = "Order sent. Thank you!",
-					Success = true
-				};
-			}
+			return new ServiceResponse<string>()
+			{
+				Data = ordernr,
+				Message = "Order sent. Thank you!",
+				Success = true
+			};
 		}
 
 		return new ServiceResponse<string>()
