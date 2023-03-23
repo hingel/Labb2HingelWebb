@@ -41,35 +41,39 @@ public class ProductRepository : IProductRepository<StoreProduct>
 	
 	public async Task<StoreProduct> GetItemByName(string productName)
 	{
-		var filter = Builders<StoreProduct>.Filter.StringIn("ProductName", productName); //TODO: Borde göra om detta.
+		var filter = Builders<StoreProduct>.Filter.StringIn("ProductName", productName);
 		var products = await _storeProductCollection.FindAsync(filter);
-
-
-		//TODO: Gör null check
+		
+		if (products == null)
+		{
+			return null;
+		}
 
 		return products.FirstOrDefault();
 	}
 	
-	//TODO: Fixa detta med id på ett bättre sätt. Ska jag lägga till en variabel till i objektet?
 	public async Task<StoreProduct> GetItemById(string id)
 	{
 		var filter = Builders<StoreProduct>.Filter.Eq("ProductId", id);
 		var products = await _storeProductCollection.FindAsync(filter);
 
-		//TODO: Gör null check
+		if (products == null)
+		{
+			return null;
+		}
 
-		//return dtoProducts;
 		return products.FirstOrDefault();
 	}
 
-	public async Task DeleteItem(string name)
+	public async Task<long> DeleteItem(string name)
 	{
 		var filter = Builders<StoreProduct>.Filter.Eq("ProductName", name);
-		await _storeProductCollection.DeleteOneAsync(filter);
+		var result = await _storeProductCollection.DeleteOneAsync(filter);
+
+		return result.DeletedCount;
 	}
 
-	
-	public async Task UpdateItem(StoreProduct updatedItem)
+	public async Task<bool> UpdateItem(StoreProduct updatedItem)
 	{
 		var filter = Builders<StoreProduct>.Filter.Eq("Id", updatedItem.Id);
 		var update = Builders<StoreProduct>.Update.Set("ProductName", updatedItem.ProductName)
@@ -78,12 +82,17 @@ public class ProductRepository : IProductRepository<StoreProduct>
 			.Set("IsActive", updatedItem.IsActive)
 			.Set("Price", updatedItem.Price);
 
-		await _storeProductCollection.FindOneAndUpdateAsync(filter, update,
+		var result = await _storeProductCollection.FindOneAndUpdateAsync(filter, update,
 			new FindOneAndUpdateOptions<StoreProduct, StoreProduct>() { IsUpsert = true });
 
-		//TODO: Returnera ett svarsmeddelande också
-	}
+		if (result != null)
+		{
+			return true;
+		}
 
+		return false;
+	}
+	
 	public async Task<IEnumerable<StoreProduct>> GetAllItems()
 	{
 		var products = await _storeProductCollection.FindAsync(_ => true);

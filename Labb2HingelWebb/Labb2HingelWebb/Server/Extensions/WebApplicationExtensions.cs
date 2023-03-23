@@ -14,14 +14,14 @@ public static class WebApplicationExtensions
 		{
 			var response = await customerService.FindUserByName(name);
 
-			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+			return Results.Ok(response); // : Results.BadRequest(response);
 		}).RequireAuthorization();
 
 
 		app.MapGet("/findCustomers/", async (CustomerService customerService) =>
 		{
 			var response = await customerService.FindCustomers();
-			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+			return Results.Ok(response); // : Results.BadRequest(response);
 			
 		}).RequireAuthorization("admin_access");
 
@@ -29,14 +29,14 @@ public static class WebApplicationExtensions
 		{
 			var response = await customerService.UpdateUser(updatedCustomerDto);
 
-			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+			return Results.Ok(response);
 		}).RequireAuthorization("admin_access");
 
 		app.MapGet("/findUserByEmail/{email}", async (CustomerService customerService, string email) =>
 		{
 			var response = await customerService.FindUserByEmail(email);
 
-			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+			return Results.Ok(response);
 		}).RequireAuthorization("admin_access");
 
 		return app;
@@ -56,7 +56,7 @@ public static class WebApplicationExtensions
 		{
 			var response = await storeService.GetAllProducts();
 
-			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
+			return Results.Ok(response);
 
 		});
 
@@ -83,7 +83,7 @@ public static class WebApplicationExtensions
 		{
 			var response = await orderService.GetOrders(email);
 
-			return response.Success ? Results.Ok(response) : Results.Ok(response); //TODO: Får inte tillbaks svar om inte OK resultat.
+			return Results.Ok(response);
 		}).RequireAuthorization("admin_access");
 		
 		return app;

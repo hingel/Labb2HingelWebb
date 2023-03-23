@@ -50,7 +50,7 @@ public class OrderService
 	{
 		var orders = await _orderStoreRepository.GetByEmail(email);
 
-		if (orders != null && orders.Any()) //TODO: Vilken check behövs??
+		if (orders != null && orders.Any())
 		{
 			var response = new ServiceResponse<IEnumerable<OrderDto>>()
 			{

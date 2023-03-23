@@ -11,16 +11,10 @@ namespace Labb2HingelWebb.Server.Services;
 
 public class CustomerService
 {
-	private UserManager<ApplicationUser> _userManager;
-	private IHttpContextAccessor _contextAccessor;
-	private readonly ApplicationDbContext _appDbcontext; //TODO: Använda inte i muköget
-
-
-	public CustomerService(UserManager<ApplicationUser> userManager, IHttpContextAccessor accessor, ApplicationDbContext appDbContext )
+	private readonly UserManager<ApplicationUser> _userManager;
+	public CustomerService(UserManager<ApplicationUser> userManager)
 	{
 		_userManager = userManager;
-		_contextAccessor = accessor;
-		_appDbcontext = appDbContext;
 	}
 	
 	public async Task<ServiceResponse<CustomerDto>> FindUserByEmail(string email)
@@ -75,7 +69,7 @@ public class CustomerService
 		userToUpdate.FirstName = updatedCustomerDto.FirstName;
 		userToUpdate.LastName = updatedCustomerDto.LastName;
 
-		var response = await _userManager.UpdateAsync(userToUpdate); //TODO: Använda emailadressen istället.Eller det går inte heller?
+		var response = await _userManager.UpdateAsync(userToUpdate);
 
 		if (response.Succeeded)
 		{

@@ -73,8 +73,10 @@ partial class EditProducts
 			ResponseMessage = result.Message;
 			await GetProducts();
 		}
-
-		Console.WriteLine(ResponseMessage); //TODO: Ta bort detta efter test
+		else
+		{
+			ResponseMessage = result.Message;
+		}
 	}
 
 	private async Task DeleteProduct()
@@ -91,7 +93,9 @@ partial class EditProducts
 			await GetProducts();
 		}
 
-		Console.WriteLine(ResponseMessage); //TODO: Ta bort detta efter test
-
+		else
+		{
+			ResponseMessage = result.Message;
+		}
 	}
 }

@@ -56,12 +56,22 @@ public class ProductService
 			toUpdate.Price = newDtoProduct.Price;
 			toUpdate.ProductType = newDtoProduct.ProductType;
 
-			await _productRepository.UpdateItem(toUpdate);
+			var result = await _productRepository.UpdateItem(toUpdate);
+
+			if (result)
+			{
+				return new ServiceResponse<string>()
+				{
+					Data = string.Empty,
+					Message = "Product Updated",
+					Success = true
+				};
+			}
 
 			return new ServiceResponse<string>()
 			{
 				Data = string.Empty,
-				Message = "Product Updated",
+				Message = "Product NOT Updated",
 				Success = true
 			};
 		}
@@ -96,14 +106,13 @@ public class ProductService
 		};
 	}
 
-	//TODO: Ska jag ta hand om mer alternativ om produkten inte hittas tex? Men ska vara väldigt låg risk.
 	public async Task<ServiceResponse<string>> DeleteProduct(string productToDelete)
 	{
-		await _productRepository.DeleteItem(productToDelete);
+		var numberOfDeletedProd = await _productRepository.DeleteItem(productToDelete);
 
 		return new ServiceResponse<string>()
 		{
-			Message = $"{productToDelete} is deleted.",
+			Message = $"{numberOfDeletedProd} {productToDelete} is deleted.",
 			Success = true,
 			Data = string.Empty
 		};

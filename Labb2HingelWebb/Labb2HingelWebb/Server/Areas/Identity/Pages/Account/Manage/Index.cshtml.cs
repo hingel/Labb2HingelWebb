@@ -122,8 +122,7 @@ namespace Labb2HingelWebb.Server.Areas.Identity.Pages.Account.Manage
                 }
             }
 
-            //TODO: nån smartare check här?
-            if (Address.Length > 0)
+            if (Address.Length > 0 || FirstName.Length > 0 || LastName.Length > 0)
             {
 	            user.Adress = Address;
                 user.FirstName = FirstName;
