@@ -4,6 +4,7 @@ using Labb2HingelWebb.Server.Data;
 using Labb2HingelWebb.Server.Extensions;
 using Labb2HingelWebb.Server.Models;
 using Labb2HingelWebb.Server.Services;
+using Labb2HingelWebb.Shared;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -104,7 +105,7 @@ app.MapCustomerEndPoints();
 
 app.MapOrderEndPoints();
 
-app.MapGet("/fillData", async (string userName) =>
+app.MapGet("/fillData/{userName}", async (string userName) =>
 {
 	using (var scope = app.Services.CreateScope())
 	{
@@ -123,32 +124,48 @@ app.MapGet("/fillData", async (string userName) =>
 
 		if (user is null)
 		{
-			return "User not found";
+			return Results.Ok(new ServiceResponse<List<string>>()
+			{
+				Message = "User not found",
+				Success = false
+			});
 		}
 
 		if (await usrMngr.IsInRoleAsync(user, role.Name))
 		{
-			return "User is already in role";
+			return Results.Ok(new ServiceResponse<List<string>>()
+			{
+				Message = "User is already in role",
+				Success = false
+			});
 		}
 
 		await usrMngr.AddToRoleAsync(user, role.Name);
 
-		//Här skapa datan, eller köra metod som skapar datan.
-
-		await usrMngr.CreateAsync(new ApplicationUser()
+		var newUser = new ApplicationUser()
 			{
+				UserName = "GOJA",
 				FirstName = "Göran",
 				LastName = "J",
 				Adress = "Där borta vägen 5, 123 45 GBG",
 				PhoneNumber = "+123456",
 				Email = "göran@jmejl.se"
-			}, "ABcd1234%");
+			};
 
-		var newUser = await usrMngr.FindByEmailAsync("göran@jmejl.se");
-		
-		await dataCreationManager.AddDataAsync(newUser);
+		var resultAddUser = await usrMngr.CreateAsync(newUser, "ABcd1234%");
 
-		return "testet visar: ";
+		if (!resultAddUser.Succeeded)
+		{
+			return Results.Ok(new ServiceResponse<List<string>>()
+			{
+				Message = "User is already exists",
+				Success = false
+			});
+		}
+
+		var result = await dataCreationManager.AddDataAsync(newUser);
+
+		return result.Success ?  Results.Ok(result) : Results.BadRequest(result);
 	}
 }).RequireAuthorization();
 

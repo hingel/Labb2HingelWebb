@@ -1,7 +1,6 @@
 ﻿using Labb2HingelWebb.Server.Models;
 using Labb2HingelWebb.Shared;
 using Labb2HingelWebb.Shared.DTOs;
-using Microsoft.AspNetCore.Identity;
 using StoreDataAccess.Models;
 using StoreDataAccess.Repositories;
 
@@ -9,17 +8,17 @@ namespace Labb2HingelWebb.Server;
 
 public class DataCreation
 {
-	private readonly OrderRepository _orderRepository;
-	private readonly ProductRepository _productRepository;
-	public DataCreation(OrderRepository orderRepository, ProductRepository productRepository)
+	private readonly IOrderRepository<Order> _orderRepository;
+	private readonly IProductRepository<StoreProduct> _productRepository;
+	public DataCreation(IOrderRepository<Order> orderRepository, IProductRepository<StoreProduct> productRepository)
 	{
 		_orderRepository = orderRepository;
 		_productRepository = productRepository;
 	}
 
-	public async Task AddDataAsync(ApplicationUser newUser)
+	public async Task<ServiceResponse<List<string>>> AddDataAsync(ApplicationUser newUser)
 	{
-		//Först skapa produkter och lägga till dem.
+		var listAddedItems = new List<string>();
 
 		var espresso = new StoreProduct
 		{
@@ -31,6 +30,7 @@ public class DataCreation
 		};
 
 		await _productRepository.AddItemAsync(espresso);
+		listAddedItems.Add(espresso.ProductName);
 
 		var cortado = new StoreProduct
 		{
@@ -42,6 +42,7 @@ public class DataCreation
 		};
 
 		await _productRepository.AddItemAsync(cortado);
+		listAddedItems.Add(cortado.ProductName);
 
 		var cappucino = new StoreProduct
 		{
@@ -53,6 +54,7 @@ public class DataCreation
 		};
 
 		await _productRepository.AddItemAsync(cappucino);
+		listAddedItems.Add(cappucino.ProductName);
 
 		var tea = new StoreProduct
 		{
@@ -64,6 +66,7 @@ public class DataCreation
 		};
 
 		await _productRepository.AddItemAsync(tea);
+		listAddedItems.Add(tea.ProductName);
 
 		var greenTea = new StoreProduct
 		{
@@ -75,25 +78,26 @@ public class DataCreation
 		};
 
 		await _productRepository.AddItemAsync(greenTea);
+		listAddedItems.Add(greenTea.ProductName);
 
 		var list = new List<ProductOrderQuantityDto>
 		{
-			new ProductOrderQuantityDto()
+			new ()
 			{
+				StoreProductDto = ConvertProductToDto(espresso),
 				Quantity = 2,
-				StoreProductDto = ConvertProductToDto(espresso)
 			},
 
-			new ProductOrderQuantityDto()
+			new ()
 			{
-				Quantity = 1,
-				StoreProductDto = ConvertProductToDto(cortado)
+				StoreProductDto = ConvertProductToDto(cortado),
+				Quantity = 1
 			},
 
-			new ProductOrderQuantityDto()
+			new ()
 			{
-				Quantity = 3,
-				StoreProductDto = ConvertProductToDto(tea)
+				StoreProductDto = ConvertProductToDto(tea),
+				Quantity = 3
 			}
 		};
 		
@@ -107,17 +111,24 @@ public class DataCreation
 				Phone = newUser.PhoneNumber,
 				FirstName = newUser.FirstName,
 				LastName = newUser.LastName
-			},
+			},  
 			OrderDate = DateTime.Now.AddDays(-5),
-			ProductOrderQuantityDtos = list
+			ProductOrderQuantityDtos = list,
 		};
 	
-		await _orderRepository.AddItemAsync(newOrder);
+		listAddedItems.Add($"Order with no: {await _orderRepository.AddItemAsync(newOrder)}");
+
+		return new ServiceResponse<List<string>>()
+		{
+			Data = listAddedItems,
+			Message = "Data added",
+			Success = true
+		};
 	}
 
 	private StoreProductDto ConvertProductToDto(StoreProduct product)
 	{
-		return new StoreProductDto()
+		return new ()
 		{
 			ProductName = product.ProductName,
 			ProductDescription = product.ProductDescription,
@@ -126,6 +137,4 @@ public class DataCreation
 			IsActive = product.IsActive
 		};
 	}
-
-
 }

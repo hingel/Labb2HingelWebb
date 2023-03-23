@@ -13,7 +13,7 @@ public class StoreProduct
 	[BsonElement]
 	public string ProductDescription { get; set; } = String.Empty;
 	[BsonElement]
-	public ProductCategory ProductType { get; set; } = ProductCategory.None;
+	public ProductCategory ProductType { get; set; } = ProductCategory.Other;
 	[BsonElement]
 	public bool IsActive { get; set; }
 	[BsonElement]

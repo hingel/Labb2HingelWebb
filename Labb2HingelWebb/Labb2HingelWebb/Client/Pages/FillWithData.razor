@@ -7,20 +7,20 @@
 
 <h3>FillWithData</h3>
 
-<table>
-
+<table class="table">
+	@{
+		foreach (var item in ResultList)
+		{
+			<tr>@item</tr>
+		}
+	}
 </table>
 
 
 @code {
-	//Bara köra ett api
-	//Gör den inloggade personen till admin
-
-
-	//Kan sen kolla om det finns redan en person som är admin så kan man inte köra scriptet.
-
 	public string ResponseMessage { get; set; }
 	public string CustomerName { get; set; }
+	public List<string> ResultList { get; set; } = new();
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -28,13 +28,19 @@
 
 		CustomerName = userInfo.User.Identity.Name;
 
-		var result = await HttpClient.GetFromJsonAsync<ServiceResponse<string>>(HttpClient.BaseAddress + "fillData");
+		var result = await HttpClient.GetFromJsonAsync<ServiceResponse<List<string>>>(HttpClient.BaseAddress + $"fillData/{CustomerName}");
 
-		//Kan göra en redirect om det blir falskt svar? Datan redan ifylld. Kanske med en timer?
+		if (result.Data != null && result.Success)
+		{
+			ResultList = result.Data;
+		}
+		else
+		{
+			ResultList.Add(result.Message);
+		}
 
-
+		
+		//Gå tillbaks till en sida sen
 		await base.OnInitializedAsync();
 	}
-
-
 }
