@@ -87,9 +87,9 @@ public static class WebApplicationExtensions
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 		}).RequireAuthorization();
 
-		app.MapGet("/getCustomerOrders/{email}", async (OrderService orderService, string email) =>
+		app.MapGet("/getCustomerOrders/{customerId}", async (OrderService orderService, string customerId) =>
 		{
-			var response = await orderService.GetOrders(email);
+			var response = await orderService.GetOrders(customerId);
 
 			return Results.Ok(response);
 		}).RequireAuthorization("admin_access");

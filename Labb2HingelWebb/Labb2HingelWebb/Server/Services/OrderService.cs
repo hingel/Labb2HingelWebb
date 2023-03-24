@@ -46,9 +46,9 @@ public class OrderService
 		};
 	}
 
-	public async Task<ServiceResponse<IEnumerable<OrderDto>>> GetOrders(string email)
+	public async Task<ServiceResponse<IEnumerable<OrderDto>>> GetOrders(string customerId)
 	{
-		var orders = await _orderStoreRepository.GetByEmail(email);
+		var orders = await _orderStoreRepository.GetByUserId(customerId);
 
 		if (orders != null && orders.Any())
 		{
@@ -64,7 +64,7 @@ public class OrderService
 					Address = o.CustomerDto.Address
 				}),
 				Success = true,
-				Message = $"Order from {email}"
+				Message = $"Order from {customerId}"
 			};
 
 			return response;

@@ -110,7 +110,8 @@ public class DataCreation
 				Address = newUser.Adress,
 				Phone = newUser.PhoneNumber,
 				FirstName = newUser.FirstName,
-				LastName = newUser.LastName
+				LastName = newUser.LastName,
+				CustomerId = newUser.Id
 			},  
 			OrderDate = DateTime.Now.AddDays(-5),
 			ProductOrderQuantityDtos = list,

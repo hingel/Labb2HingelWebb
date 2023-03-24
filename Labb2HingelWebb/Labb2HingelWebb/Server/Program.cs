@@ -115,13 +115,20 @@ app.MapGet("/fillData/{userName}", async (string userName) =>
 		var usrMngr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 		var dataCreationManager = scope.ServiceProvider.GetRequiredService<DataCreation>();
 		
-		var role = rolemgt.Roles.FirstOrDefault(r => r.Name== "admin");
+		var role = await rolemgt.Roles.FirstOrDefaultAsync(r => r.Name== "admin");
 
-		if (role is null)
+		if (role is not null)
 		{
-			await rolemgt.CreateAsync(new IdentityRole() {Name = "admin"});
+			return Results.Ok(new ServiceResponse<List<string>>()
+			{
+				Message = "Data already filled",
+				Success = false
+			});
 		}
 
+		await rolemgt.CreateAsync(new IdentityRole() {Name = "admin"});
+		role = await rolemgt.Roles.FirstOrDefaultAsync(r => r.Name == "admin");
+		
 		var user = await usrMngr.FindByNameAsync(userName);
 
 		if (user is null)
@@ -146,12 +153,12 @@ app.MapGet("/fillData/{userName}", async (string userName) =>
 
 		var newUser = new ApplicationUser()
 			{
-				UserName = "GOJA",
+				UserName = "goran@jmejl.se",
 				FirstName = "Göran",
 				LastName = "J",
 				Adress = "Där borta vägen 5, 123 45 GBG",
 				PhoneNumber = "+123456",
-				Email = "göran@jmejl.se"
+				Email = "goran@jmejl.se"
 			};
 
 		var resultAddUser = await usrMngr.CreateAsync(newUser, "ABcd1234%");

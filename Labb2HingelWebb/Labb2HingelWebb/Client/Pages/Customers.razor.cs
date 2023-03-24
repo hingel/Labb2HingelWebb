@@ -37,7 +37,7 @@ partial class Customers
 	{
 		ActiveCustomer = customerDto;
 
-		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<OrderDto>>>(HttpClient.BaseAddress + $"getCustomerOrders/{customerDto.Email}");
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<IEnumerable<OrderDto>>>(HttpClient.BaseAddress + $"getCustomerOrders/{customerDto.CustomerId}");
 
 		if (response.Success)
 		{

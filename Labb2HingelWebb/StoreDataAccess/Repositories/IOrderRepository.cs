@@ -3,6 +3,6 @@
 public interface IOrderRepository<T>
 {	
 	Task<string> AddItemAsync(T item);
-	Task<IEnumerable<T>> GetByEmail(string email);
+	Task<IEnumerable<T>> GetByUserId(string customerId);
 	Task<bool> DeleteItemAsync(string id);
 }

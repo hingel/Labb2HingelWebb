@@ -46,7 +46,7 @@ public class UnitOfWork
 		{
 			return new ServiceResponse<string>()
 			{
-				Message = $"Order {placeOrderResult.Data} deleted successfully",
+				Message = $"Payment not ok. Order {placeOrderResult.Data} cancelled",
 				Success = false
 			};
 
@@ -54,7 +54,7 @@ public class UnitOfWork
 
 		return new ServiceResponse<string>()
 		{
-			Message = $"Order {placeOrderResult.Data} NOT deleted successfully",
+			Message = $"Payment not ok. Order {placeOrderResult.Data} NOT cancelled successfully",
 			Success = false
 		};
 	}

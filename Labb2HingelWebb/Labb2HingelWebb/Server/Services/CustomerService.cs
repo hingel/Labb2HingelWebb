@@ -119,7 +119,8 @@ public class CustomerService
 			Address = activeCustomer.Adress,
 			Phone = activeCustomer.PhoneNumber,
 			FirstName = activeCustomer.FirstName,
-			LastName = activeCustomer.LastName
+			LastName = activeCustomer.LastName,
+			CustomerId = activeCustomer.Id
 		};
 	}
 }

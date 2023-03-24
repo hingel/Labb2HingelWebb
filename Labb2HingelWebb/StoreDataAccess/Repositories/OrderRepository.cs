@@ -28,12 +28,12 @@ public class OrderRepository : IOrderRepository<Order>
 		return item.Id;
 	}
 
-	public async Task<IEnumerable<Order>> GetByEmail(string email)
+	public async Task<IEnumerable<Order>> GetByUserId(string customerId)
 	{
-		//var filter = Builders<Order.CusteomerDto>.Filter.Eq("CustomerDto", email); //TODO: ta hand om detta sorterar ut alla nu
+		//Borde kunna gå in i objekten och söka efter användarnamnet istället.
 		var result = await _storeOrderCollection.FindAsync(_ => true);
 
-		return result.ToList().Where(o => o.CustomerDto.Email.ToLower() == email.ToLower());
+		return result.ToList().Where(o => o.CustomerDto.CustomerId.Equals(customerId));
 	}
 	
 	public async Task<bool> DeleteItemAsync(string id)

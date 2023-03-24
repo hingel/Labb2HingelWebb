@@ -46,19 +46,11 @@ public class ProductService
 	{
 		var products = await _productRepository.GetAllItems();
 
-		if (products.Any(p => p.ProductName.Equals(newDtoProduct.ProductName)))
-		{
-			var toUpdate = products.FirstOrDefault(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower()));
+		var toUpdate = products.FirstOrDefault(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower()));
 
-			if (toUpdate == null)
-			{
-				return new ServiceResponse<string>()
-				{
-					Data = string.Empty,
-					Message = "Product Not Found",
-					Success = true
-				};
-			}
+		if (toUpdate is not null ) //products.Any(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower())))
+		{
+			//var toUpdate = products.FirstOrDefault(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower()));
 
 			toUpdate.ProductDescription = newDtoProduct.ProductDescription;
 			toUpdate.ProductName = newDtoProduct.ProductName;
