@@ -11,6 +11,18 @@
 <h3>Shopping Page</h3>
 <h2>Welcome @CustomerName</h2>
 
+<EditForm Model="ListStoreProductDtos" OnSubmit="SearchProduct">
+	<div class="form-control">
+		<div class="row m-1">
+			<label>Enter search word</label>
+			<InputText @bind-Value="SearchText"></InputText>
+		</div>
+	</div>
+	<button class="btn btn-primary mt-2">Search</button>
+</EditForm>
+
+<br/>
+
 <div class="container">
 	<div class="row">
 		<div class="col">

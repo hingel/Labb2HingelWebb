@@ -28,7 +28,7 @@ public class ProductService
 			var test = new ServiceResponse<IEnumerable<StoreProductDto>>()
 			{
 				Data = data,
-				Message = "Products",
+				Message = "Products found.",
 				Success = true
 			};
 
@@ -48,7 +48,17 @@ public class ProductService
 
 		if (products.Any(p => p.ProductName.Equals(newDtoProduct.ProductName)))
 		{
-			var toUpdate = await _productRepository.GetItemByName(newDtoProduct.ProductName);
+			var toUpdate = products.FirstOrDefault(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower()));
+
+			if (toUpdate == null)
+			{
+				return new ServiceResponse<string>()
+				{
+					Data = string.Empty,
+					Message = "Product Not Found",
+					Success = true
+				};
+			}
 
 			toUpdate.ProductDescription = newDtoProduct.ProductDescription;
 			toUpdate.ProductName = newDtoProduct.ProductName;
@@ -115,6 +125,31 @@ public class ProductService
 			Message = $"{numberOfDeletedProd} {productToDelete} is deleted.",
 			Success = true,
 			Data = string.Empty
+		};
+	}
+
+	public async Task<ServiceResponse<IEnumerable<StoreProductDto>>> GetProductByName(string productName)
+	{
+		var products = await _productRepository.GetItemByName(productName);
+
+		if (products is not null)
+		{
+			var data = products.Select(ConvertProductToDto);
+
+			var result = new ServiceResponse<IEnumerable<StoreProductDto>>()
+			{
+				Data = data,
+				Message = "Products found.",
+				Success = true
+			};
+
+			return result;
+		}
+
+		return new ServiceResponse<IEnumerable<StoreProductDto>>()
+		{
+			Message = "No products found",
+			Success = false
 		};
 	}
 }

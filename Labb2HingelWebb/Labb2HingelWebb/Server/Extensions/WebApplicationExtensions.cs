@@ -10,9 +10,9 @@ public static class WebApplicationExtensions
 {
 	public static WebApplication MapCustomerEndPoints(this WebApplication app)
 	{
-		app.MapGet("/findUserByName/{name}", async (CustomerService customerService, string name) =>
+		app.MapGet("/findUserByName/{userName}", async (CustomerService customerService, string userName) =>
 		{
-			var response = await customerService.FindUserByName(name);
+			var response = await customerService.FindUserByName(userName);
 
 			return Results.Ok(response);
 		}).RequireAuthorization();
@@ -58,7 +58,7 @@ public static class WebApplicationExtensions
 
 			return Results.Ok(response);
 
-		});
+		}).RequireAuthorization();
 
 		app.MapDelete("/deleteProduct/{productName}", async (ProductService storeService, string productName) =>
 		{
@@ -66,6 +66,14 @@ public static class WebApplicationExtensions
 
 			return response.Success ? Results.Ok(response) : Results.BadRequest(response);
 		}).RequireAuthorization("admin_access");
+		
+		app.MapGet("/getProductByName/{productName}", async (ProductService storeService, string productName) =>
+		{
+			var response = await storeService.GetProductByName(productName);
+
+			return response.Success ? Results.Ok(response) : Results.NotFound(response);
+
+		}).RequireAuthorization();
 
 		return app;
 	}

@@ -14,6 +14,7 @@ partial class StorePage : ComponentBase
 	private bool _showHide = false;
 	private bool _show = true;
 	private int _shoppingCartSum = 0;
+	public string SearchText { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -103,4 +104,19 @@ partial class StorePage : ComponentBase
 	}
 
 	//TODO: Fixa till tända o släcka metoden på ett snyggare sätt i HTML-delen.
+
+	private async Task SearchProduct()
+	{
+		if (SearchText.Length != 0)
+		{
+			var response = await HttpClient.GetFromJsonAsync<ServiceResponse<StoreProductDto[]>>(HttpClient.BaseAddress + $"getProductByName/{SearchText}");
+
+			if (response.Success)
+			{
+				ListStoreProductDtos.Clear();
+				ListStoreProductDtos.AddRange(response.Data.Where(p => p.IsActive));
+				_responseMessage = response.Message;
+			}
+		}
+	}
 }

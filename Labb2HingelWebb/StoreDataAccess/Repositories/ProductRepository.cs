@@ -21,7 +21,6 @@ public class ProductRepository : IProductRepository<StoreProduct>
 
 	public async Task AddItemAsync(StoreProduct newProduct)
 	{
-		//Detta måsta fixas.
 		if (await CheckProductExists(newProduct))
 		{
 			return;
@@ -39,32 +38,18 @@ public class ProductRepository : IProductRepository<StoreProduct>
 		return exists.ToList().Count > 0;
 	}
 	
-	public async Task<StoreProduct> GetItemByName(string productName)
+	public async Task<IEnumerable<StoreProduct>> GetItemByName(string productName)
 	{
-		var filter = Builders<StoreProduct>.Filter.StringIn("ProductName", productName);
-		var products = await _storeProductCollection.FindAsync(filter);
-		
-		if (products == null)
-		{
-			return null;
-		}
+		//var filter = Builders<StoreProduct>.Filter.StringIn("ProductName", productName); //TODO:Får inte till någon LIKE sökning funktion.
+		//var products = await _storeProductCollection.FindAsync(filter);
 
-		return products.FirstOrDefault();
+		var products = await GetAllItems();
+
+		var result = products.Where(p => p.ProductName.ToLower().Contains(productName.ToLower()));
+
+		return result;
 	}
 	
-	public async Task<StoreProduct> GetItemById(string id)
-	{
-		var filter = Builders<StoreProduct>.Filter.Eq("ProductId", id);
-		var products = await _storeProductCollection.FindAsync(filter);
-
-		if (products == null)
-		{
-			return null;
-		}
-
-		return products.FirstOrDefault();
-	}
-
 	public async Task<long> DeleteItem(string name)
 	{
 		var filter = Builders<StoreProduct>.Filter.Eq("ProductName", name);

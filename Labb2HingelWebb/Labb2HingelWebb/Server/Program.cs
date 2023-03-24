@@ -105,6 +105,8 @@ app.MapCustomerEndPoints();
 
 app.MapOrderEndPoints();
 
+
+//Enbart för att fylla databasen med data och användare.
 app.MapGet("/fillData/{userName}", async (string userName) =>
 {
 	using (var scope = app.Services.CreateScope())
@@ -168,8 +170,5 @@ app.MapGet("/fillData/{userName}", async (string userName) =>
 		return result.Success ? Results.Ok(result) : Results.BadRequest(result);
 	}
 }).RequireAuthorization();
-
-
-app.MapGet( "/test", () => "hej").RequireAuthorization("admin_access");
 
 app.Run();

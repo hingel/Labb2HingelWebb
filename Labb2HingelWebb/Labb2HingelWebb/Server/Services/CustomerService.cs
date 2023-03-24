@@ -38,23 +38,23 @@ public class CustomerService
 		};
 	}
 
-	public async Task<ServiceResponse<CustomerDto>> FindUserByName(string nickName)
+	public async Task<ServiceResponse<CustomerDto>> FindUserByName(string userName)
 	{
-		var user = await _userManager.FindByNameAsync(nickName);
+		var user = await _userManager.FindByNameAsync(userName);
 
 		if (user != null)
 		{
 			return new ServiceResponse<CustomerDto>()
 			{
 				Data = ConvertCustomerToDto(user),
-				Message = $"{nickName} found",
+				Message = $"{userName} found",
 				Success = true
 			};
 		}
 
 		return new ServiceResponse<CustomerDto>()
 		{
-			Message = $"{nickName} not found",
+			Message = $"{userName} not found",
 			Success = false
 		};
 	}

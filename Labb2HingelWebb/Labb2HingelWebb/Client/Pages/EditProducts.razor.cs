@@ -70,8 +70,8 @@ partial class EditProducts
 
 		if (result.Success)
 		{
-			ResponseMessage = result.Message;
 			await GetProducts();
+			ResponseMessage = result.Message;
 		}
 		else
 		{
@@ -89,8 +89,8 @@ partial class EditProducts
 
 		if (result.Success)
 		{
-			ResponseMessage = result.Message;
 			await GetProducts();
+			ResponseMessage = result.Message;
 		}
 
 		else

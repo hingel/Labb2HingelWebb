@@ -23,9 +23,9 @@ public class DataCreation
 		var espresso = new StoreProduct
 		{
 			ProductType = ProductCategory.Coffee,
-			ProductDescription = "Single Espresso shot",
-			Price = 20,
 			ProductName = "Espresso",
+			Price = 20,
+			ProductDescription = "Single Espresso shot",
 			IsActive = true
 		};
 
@@ -35,9 +35,9 @@ public class DataCreation
 		var cortado = new StoreProduct
 		{
 			ProductType = ProductCategory.Coffee,
-			ProductDescription = "Cortado",
+			ProductName = "Cortado",
 			Price = 20,
-			ProductName = "Double Espresso with hot oat milk",
+			ProductDescription = "Double Espresso with hot oat milk",
 			IsActive = true
 		};
 
@@ -47,9 +47,9 @@ public class DataCreation
 		var cappucino = new StoreProduct
 		{
 			ProductType = ProductCategory.Coffee,
-			ProductDescription = "Cappucino",
+			ProductName = "Cappucino",
 			Price = 20,
-			ProductName = "Single Espresso with hot and foamed oat milk",
+			ProductDescription = "Single Espresso with hot and foamed oat milk",
 			IsActive = true
 		};
 
@@ -59,9 +59,9 @@ public class DataCreation
 		var tea = new StoreProduct
 		{
 			ProductType = ProductCategory.Tea,
-			ProductDescription = "Ceylon black tea",
+			ProductName = "Ceylon black tea",
 			Price = 20,
-			ProductName = "1 cup of prime Ceylon black tea",
+			ProductDescription = "1 cup of prime Ceylon black tea",
 			IsActive = true
 		};
 
@@ -71,9 +71,9 @@ public class DataCreation
 		var greenTea = new StoreProduct
 		{
 			ProductType = ProductCategory.Tea,
-			ProductDescription = "Genmaicha",
+			ProductName = "Genmaicha",
 			Price = 20,
-			ProductName = "1 cup of prime green Japanese tea with roasted rice.",
+			ProductDescription = "1 cup of prime green Japanese tea with roasted rice.",
 			IsActive = false
 		};
 
