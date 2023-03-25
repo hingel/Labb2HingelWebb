@@ -1,0 +1,83 @@
+﻿@page "/EditProfile"
+@using Labb2HingelWebb.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Labb2HingelWebb.Shared
+
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@attribute [Authorize]
+
+<h3>EditProfile</h3>
+
+<div class="container">
+
+	<div class="form-control">
+		<label>Enter email</label>
+		<InputText @bind-Value="EmailSearch"></InputText>
+		<button class="btn btn-primary" @onclick="FindUser">Search</button>
+	</div>
+
+	<EditForm Model="ActiveCustomerDto" OnSubmit="UpdateUser">
+		<div class="form-control">
+			<label>Address</label>
+			<InputText @bind-Value="ActiveCustomerDto.Address"></InputText>
+		</div>
+		<div class="form-control">
+			<label>Phone</label>
+			<InputText @bind-Value="ActiveCustomerDto.Phone"></InputText>
+		</div>
+
+		<div class="form-control">
+			<label>FistName</label>
+			<InputText @bind-Value="ActiveCustomerDto.FirstName"></InputText>
+		</div>
+		<div class="form-control">
+			<label>LastName</label>
+			<InputText @bind-Value="ActiveCustomerDto.LastName"></InputText>
+		</div>
+		<button class="btn btn-primary">Send</button>
+	</EditForm>
+
+	<div>
+		<p>Response Message: @ResponseMessage</p>
+	</div>
+</div>
+
+
+@code {
+	public CustomerDto ActiveCustomerDto { get; set; } = new();
+	public string ResponseMessage { get; set; } = string.Empty;
+	public string EmailSearch { get; set; } = "";
+	
+	private async Task FindUser()
+	{
+		var response = await HttpClient.GetFromJsonAsync<ServiceResponse<CustomerDto>>(HttpClient.BaseAddress + $"finduserByEmail/{EmailSearch}");
+
+		if (response.Success)
+		{
+			ResponseMessage = response.Message;
+			ActiveCustomerDto = response.Data;
+		}
+		else
+		{
+			ResponseMessage = response.Message;
+		}
+	}
+
+	private async Task UpdateUser()
+	{
+		var response = await HttpClient.PostAsJsonAsync(HttpClient.BaseAddress + "updateUser", ActiveCustomerDto);
+		var result = await response.Content.ReadFromJsonAsync<ServiceResponse<CustomerDto>>();
+		if (result.Success)
+		{
+			ActiveCustomerDto = result.Data;
+			ResponseMessage = result.Message;
+		}
+
+		else
+		{
+			ResponseMessage = result.Message;
+		}
+	}
+}

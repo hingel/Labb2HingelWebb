@@ -1,0 +1,70 @@
+﻿@page "/Customers"
+@using Microsoft.AspNetCore.Authorization
+@using Labb2HingelWebb.Shared.DTOs
+@using Labb2HingelWebb.Shared
+
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@attribute [Authorize(Roles = "admin")]
+
+<h3>Customer Orders</h3>
+
+<div class="container">
+	<EditForm Model="SearchResult" OnSubmit="FilterResults">
+		<div class="form-control">
+			<label>Enter email to search</label>
+			<InputText @bind-Value="EmailSearch"></InputText>
+		</div>
+		<button class="btn btn-primary">search</button>
+	</EditForm>
+</div>
+
+<br/>
+
+<h4>Customers</h4>
+<div class="container">
+	<Virtualize Items="SearchResult" Context="customerDto">
+		<li class="list-group">
+			<div class="list-group-item list-group-item-action"
+			     @onclick="() => SelectCustomer(customerDto)">
+				Email: @customerDto.Email, Customer First name: @customerDto.FirstName
+			</div>
+		</li>
+	</Virtualize>
+</div>
+
+<br/>
+
+<div class="container row mt-2">
+	<div class="container col-md-6">
+		<h4>List of orders</h4>
+		<Virtualize Items="CustomerOrders" Context="orderDto">
+			<li class="list-group-item list-group-item-action">
+				<div @onclick="() => SelectedOrder(orderDto)">
+					Order Number: @orderDto.Id, Order Date: @orderDto.OrderDate
+				</div>
+			</li>
+		</Virtualize>
+	</div>
+	<div class="container col-md-6">
+		<div hidden="@_isHidden">
+			<h4>Products in order: @ActiveOrder.Id:</h4>
+			<p>Email: @ActiveOrder.Email. UserName: @ActiveOrder.UserName</p>
+			<p>Address: @ActiveOrder.Address</p>
+			<p>Order date: @ActiveOrder.OrderDate</p>
+			<Virtualize Items="ActiveListProducts" Context="listItem">
+				<li class="list-group-item">
+					<div>
+						Item: @listItem.StoreProductDto.ProductName. Quantity: @listItem.Quantity. Price: @listItem.StoreProductDto.Price.
+					</div>
+				</li>
+			</Virtualize>
+			<p>Total sum: @_orderSum €</p>
+		</div>
+	</div>
+</div>
+
+<p>@ResponseMessage</p>
+
+@code { }

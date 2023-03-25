@@ -1,0 +1,109 @@
+﻿@page "/EditProducts"
+@using Labb2HingelWebb.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Labb2HingelWebb.Shared
+@inject HttpClient HttpClient
+@attribute [Authorize(Roles = "admin")]
+
+<h3>EditProducts</h3>
+
+
+<div class="container row">
+	<div class="container col-md-6">
+		<EditForm Model="SearchResult" OnSubmit="FilterResults">
+			<div class="form-control">
+				<div class="row m-1">
+					<label>Enter search word</label>
+					<InputText @bind-Value="SearchWord"></InputText>
+				</div>
+				<div class="row m-1">
+					<label>Enter number of returns</label>
+					<InputNumber @bind-Value="NoOfResults"></InputNumber>
+				</div>
+				<div class="row m-1">
+					<label>Enter category 1: @ProductCategory.Coffee.ToString()
+						2:@ProductCategory.Tea.ToString()
+						3:@ProductCategory.ColdDrinks.ToString()
+						4:@ProductCategory.Other.ToString() </label>
+					<InputNumber @bind-Value="GenreSearch"></InputNumber>
+				</div>
+			</div>
+			<button class="btn btn-primary mt-2">Search</button>
+		</EditForm>
+	</div>
+	<div class="col-md-6"></div>
+</div>
+
+<br/>
+
+<div class="container row">
+	<div class="col-md-6">
+		<h4>Products</h4>
+		<div class="form-control">
+			<p>Select product, @StoreProductDtos.Count products found.</p>
+			<div class="list-group rounded-2">
+				<Virtualize Items="SearchResult" Context="productDto">
+					<li class="list-group-item list-group-item-action list-group-item-secondary">
+						<div @onclick="() => SelectProduct(productDto)">
+							@productDto.ProductName
+						</div>
+					</li>
+				</Virtualize>
+			</div>
+		</div>
+		<button class="btn btn-primary mt-2" @onclick="DeleteProduct">Delete Selected Product</button>
+	</div>
+	<div class="col-md-6">
+		<h4>Data</h4>
+		<EditForm Model="ActiveProductDto" OnSubmit="UpdateProduct">
+			<div class="form-control">
+				<p>Enter a new name to create new product.</p>
+				<div class="row m-1">
+					<div>
+						<label>Name</label>
+						<InputText @bind-Value="ActiveProductDto.ProductName"></InputText>
+					</div>
+				</div>
+				<div class="row m-1">
+					<div>
+						<label>Description</label>
+						<InputText @bind-Value="ActiveProductDto.ProductDescription"></InputText>
+					</div>
+				</div>
+				<div class="row m-1">
+					<div>
+						<label>Category: 1: @ProductCategory.Coffee.ToString()
+							2:@ProductCategory.Tea.ToString()
+							3:@ProductCategory.ColdDrinks.ToString()
+							4:@ProductCategory.Other.ToString()
+						</label>
+						<InputNumber @bind-Value="CategoryNumber"></InputNumber>
+					</div>
+				</div>
+				<div class="row m-1">
+					<div>
+						<label class="me-3">IsActive</label>
+						<InputCheckbox @bind-Value="ActiveProductDto.IsActive"></InputCheckbox>
+					</div>
+				</div>
+				<div class="row m-1">
+					<div>
+						<label>Price</label>
+						<InputNumber @bind-Value="ActiveProductDto.Price"></InputNumber>
+					</div>
+				</div>
+				<button class="btn btn-primary p-2 mt-2">Update/Add Product</button>
+			</div>
+		</EditForm>
+	</div>
+</div>
+
+<br/>
+<div>
+	<p>@ResponseMessage</p>
+</div>
+
+
+
+
+@code { }

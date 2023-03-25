@@ -1,0 +1,76 @@
+﻿@page "/StorePage"
+@using Labb2HingelWebb.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Labb2HingelWebb.Shared
+
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@attribute [Authorize]
+
+<h3>Shopping Page</h3>
+<h2>Welcome @CustomerName</h2>
+
+<EditForm Model="ListStoreProductDtos" OnSubmit="SearchProduct">
+	<div class="form-control">
+		<div class="row m-1">
+			<label>Enter search word</label>
+			<InputText @bind-Value="SearchText"></InputText>
+		</div>
+	</div>
+	<button class="btn btn-primary mt-2">Search</button>
+</EditForm>
+
+<br/>
+
+<div class="container">
+	<div class="row">
+		<div class="col">
+			<button class="btn btn-primary" @onclick="CheckOut">Check Out</button>
+		</div>
+		<div class="col">
+			<button class="btn btn-primary" @onclick="() => { _showHide = !_showHide; _show = !_showHide;}">Show/Hide Cart</button>
+			<p>Sum shopping cart: @_shoppingCartSum</p>
+		</div>
+	</div>
+</div>
+
+<ul class="container" hidden="@_showHide">
+	<Virtualize Items="ListStoreProductDtos" Context="productDto">
+		<li class="list-group">
+			<div class="card list-group-item mb-2">
+				<div class="card-header bg-secondary bg-gradient text-light">
+					@productDto.ProductName , Price: @productDto.Price €.
+				</div>
+				<div class="card-body">
+					@productDto.ProductDescription
+					<button class="btn btn-primary" @onclick="() => AddProductToCart(productDto)">+</button>
+					<button class="btn btn-primary" @onclick="() => RemoveProductFromCart(productDto)">-</button>
+				</div>
+				<div class="card-footer">Category: @productDto.ProductType.ToString()</div>
+			</div>
+		</li>
+	</Virtualize>
+</ul>
+
+<p>Response Message: @_responseMessage</p>
+
+<div>
+	<ul class="container" hidden="@_show">
+		<Virtualize Items="ShoppingCartDto" Context="shopListItem">
+			<li class="list-group">
+				<div class="card list-group-item mb-1">
+					<div class="card-header">
+						@shopListItem.StoreProductDto.ProductName
+					</div>
+					<div class="card-body">
+						Quantity: @shopListItem.Quantity , Total sum: @shopListItem.SumPrice €.
+					</div>
+				</div>
+			</li>
+		</Virtualize>
+	</ul>
+</div>
+
+
+@code {}

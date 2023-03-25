@@ -1,0 +1,63 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Labb2HingelWebb</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+	    <div class="nav-item px-3">
+		    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+			    <span class="oi oi-home" aria-hidden="true"></span> Home
+		    </NavLink>
+	    </div>
+	    <AuthorizeView>
+		    <Authorized>
+			    <div class="nav-item px-3">
+				    <NavLink class="nav-link" href="storepage">
+					    <span class="oi oi-list-rich" aria-hidden="true"></span> Store Page
+				    </NavLink>
+			    </div>
+			    <div class="nav-item px-3">
+				    <NavLink class="nav-link" href="FillWithData">
+					    <span class="oi oi-list-rich" aria-hidden="true"></span> Fill database
+				    </NavLink>
+			    </div>
+		    </Authorized>
+	    </AuthorizeView>
+	    <AuthorizeView Roles="admin">
+		    <Authorized>
+			    <div class="nav-item px-3">
+				    <NavLink class="nav-link" href="editproducts">
+					    <span class="oi oi-list-rich" aria-hidden="true"></span> Edit products
+				    </NavLink>
+			    </div>
+			    <div class="nav-item px-3">
+				    <NavLink class="nav-link" href="customers">
+					    <span class="oi oi-list-rich" aria-hidden="true"></span> Customers Orders
+				    </NavLink>
+			    </div>
+			    <div class="nav-item px-3">
+				    <NavLink class="nav-link" href="editprofile">
+					    <span class="oi oi-list-rich" aria-hidden="true"></span> Edit Profiles
+				    </NavLink>
+			    </div>
+		    </Authorized>
+	    </AuthorizeView>
+
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

@@ -1,0 +1,44 @@
+﻿@page "/FillWithData"
+@using Labb2HingelWebb.Shared
+
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+<h3>FillWithData</h3>
+
+<table class="table">
+	@{
+		foreach (var item in ResultList)
+		{
+			<tr>@item</tr>
+		}
+	}
+</table>
+
+
+@code {
+	public string ResponseMessage { get; set; }
+	public string CustomerName { get; set; }
+	public List<string> ResultList { get; set; } = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		var userInfo = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+		CustomerName = userInfo.User.Identity.Name;
+
+		var result = await HttpClient.GetFromJsonAsync<ServiceResponse<List<string>>>(HttpClient.BaseAddress + $"fillData/{CustomerName}");
+
+		if (result.Data != null && result.Success)
+		{
+			ResultList = result.Data;
+		}
+		else
+		{
+			ResultList.Add(result.Message);
+		}
+
+		await base.OnInitializedAsync();
+	}
+}
