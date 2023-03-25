@@ -21,25 +21,16 @@ public class ProductService
 	{
 		var products = await _productRepository.GetAllItems();
 		
-		if (products != null)
+		var data = products.Select(ConvertProductToDto);
+
+		var test = new ServiceResponse<IEnumerable<StoreProductDto>>()
 		{
-			var data = products.Select(ConvertProductToDto);
-
-			var test = new ServiceResponse<IEnumerable<StoreProductDto>>()
-			{
-				Data = data,
-				Message = "Products found.",
-				Success = true
-			};
-
-			return test;
-		}
-
-		return new ServiceResponse<IEnumerable<StoreProductDto>>()
-		{
-			Message = "No products found",
-			Success = false
+			Data = data,
+			Message = "Products found.",
+			Success = true
 		};
+
+		return test;
 	}
 
 	public async Task<ServiceResponse<string>> AddNewProduct(StoreProductDto newDtoProduct)
@@ -48,10 +39,8 @@ public class ProductService
 
 		var toUpdate = products.FirstOrDefault(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower()));
 
-		if (toUpdate is not null ) //products.Any(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower())))
+		if (toUpdate is not null )
 		{
-			//var toUpdate = products.FirstOrDefault(p => p.ProductName.ToLower().Equals(newDtoProduct.ProductName.ToLower()));
-
 			toUpdate.ProductDescription = newDtoProduct.ProductDescription;
 			toUpdate.ProductName = newDtoProduct.ProductName;
 			toUpdate.IsActive = newDtoProduct.IsActive;
@@ -124,24 +113,15 @@ public class ProductService
 	{
 		var products = await _productRepository.GetItemByName(productName);
 
-		if (products is not null)
+		var data = products.Select(ConvertProductToDto);
+
+		var result = new ServiceResponse<IEnumerable<StoreProductDto>>()
 		{
-			var data = products.Select(ConvertProductToDto);
-
-			var result = new ServiceResponse<IEnumerable<StoreProductDto>>()
-			{
-				Data = data,
-				Message = "Products found.",
-				Success = true
-			};
-
-			return result;
-		}
-
-		return new ServiceResponse<IEnumerable<StoreProductDto>>()
-		{
-			Message = "No products found",
-			Success = false
+			Data = data,
+			Message = "Products found.",
+			Success = true
 		};
+
+		return result;
 	}
 }

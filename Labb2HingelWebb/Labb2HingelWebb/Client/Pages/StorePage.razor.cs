@@ -103,8 +103,6 @@ partial class StorePage : ComponentBase
 		_shoppingCartSum = 0;
 	}
 
-	//TODO: Fixa till tända o släcka metoden på ett snyggare sätt i HTML-delen.
-
 	private async Task SearchProduct()
 	{
 		if (SearchText.Length != 0)

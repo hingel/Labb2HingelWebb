@@ -52,8 +52,6 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-//Egna tillagda delar:
-
 builder.Services.AddScoped<IProductRepository<StoreProduct>, ProductRepository>();
 builder.Services.AddScoped<IOrderRepository<Order>, OrderRepository>();
 builder.Services.AddScoped<ProductService>();

@@ -1,13 +1,10 @@
 ﻿using Labb2HingelWebb.Shared;
 using Labb2HingelWebb.Shared.DTOs;
-using StoreDataAccess.Models;
 
 namespace Labb2HingelWebb.Server.Services;
 
 public class PurchaseService
 {
-
-
 	public async Task<ServiceResponse<string>> PlaceOrder(OrderDto newOrderDto)
 	{
 		//Betalningssimulering

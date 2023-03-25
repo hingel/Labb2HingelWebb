@@ -128,9 +128,9 @@ namespace Labb2HingelWebb.Server.Areas.Identity.Pages.Account.Manage
                 user.FirstName = FirstName;
                 user.LastName = LastName;
 
-	            var setAddressResult = await _userManager.UpdateAsync(user);
+	            var updateResult = await _userManager.UpdateAsync(user);
 
-	            if (!setAddressResult.Succeeded)
+	            if (!updateResult.Succeeded)
 	            {
 		            StatusMessage = "Unexpected error when trying to set new address.";
 		            return RedirectToPage();

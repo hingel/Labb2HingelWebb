@@ -12,7 +12,7 @@ public class Order
 	public CustomerDto CustomerDto { get; set; }
 
 	[BsonElement]
-	public IEnumerable<ProductOrderQuantityDto> ProductOrderQuantityDtos { get; set; }
+	public IEnumerable<ProductOrderQuantityDto>? ProductOrderQuantityDtos { get; set; }
 	
 	[BsonElement]
 	public DateTime OrderDate { get; set; }

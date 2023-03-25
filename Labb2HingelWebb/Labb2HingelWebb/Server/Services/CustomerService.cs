@@ -1,11 +1,7 @@
-﻿using System.Security.Claims;
-using Labb2HingelWebb.Client;
-using Labb2HingelWebb.Server.Data;
-using Labb2HingelWebb.Server.Models;
+﻿using Labb2HingelWebb.Server.Models;
 using Labb2HingelWebb.Shared;
 using Labb2HingelWebb.Shared.DTOs;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Labb2HingelWebb.Server.Services;
 
@@ -90,7 +86,7 @@ public class CustomerService
 
 	public async Task<ServiceResponse<IEnumerable<CustomerDto>>> FindCustomers()
 	{
-		//TODO: Lite konstigt med, borde finnas en async här
+		//Borde finnas en async metod för att hämta alla användare?
 		var result = _userManager.Users;
 
 		if (result != null)

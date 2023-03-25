@@ -29,7 +29,6 @@ public class ProductRepository : IProductRepository<StoreProduct>
 		await _storeProductCollection.InsertOneAsync(newProduct);
 	}
 
-	//Är denna check tillförlitlig?
 	private async Task<bool> CheckProductExists(StoreProduct newProduct)
 	{
 		var filter = Builders<StoreProduct>.Filter.Eq("ProductName", newProduct.ProductName);
@@ -40,9 +39,7 @@ public class ProductRepository : IProductRepository<StoreProduct>
 	
 	public async Task<IEnumerable<StoreProduct>> GetItemByName(string productName)
 	{
-		//var filter = Builders<StoreProduct>.Filter.StringIn("ProductName", productName); //TODO:Får inte till någon LIKE sökning funktion.
-		//var products = await _storeProductCollection.FindAsync(filter);
-
+		//Får inte till någon LIKE sökning funktion.Kanske kan gå med Regex?
 		var products = await GetAllItems();
 
 		var result = products.Where(p => p.ProductName.ToLower().Contains(productName.ToLower()));
